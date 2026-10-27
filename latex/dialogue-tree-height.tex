@@ -1,0 +1,1649 @@
+\documentclass[11pt]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{stmaryrd}     % \llbracket \rrbracket
+\usepackage{xcolor}
+\usepackage{etoolbox}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = blue!60!black,
+  citecolor  = blue!60!black,
+  urlcolor   = blue!60!black
+}
+\usepackage{cleveref}
+
+% ---------------------------------------------------------------------
+% Macros. Kept in this file rather than in a macros.tex of their own, so
+% that the paper is a single file while it is being drafted. Split it off
+% when the paper grows sections.
+% ---------------------------------------------------------------------
+
+% We quote raw Agda identifiers inline, and these use the same Unicode
+% glyphs as the Agda source. Rather than switching to a Unicode engine,
+% we teach pdflatex each glyph we use. Extend this list whenever a fresh
+% identifier introduces a new character; compiling fails loudly with
+% "Unicode character ... not set up" if one is missing.
+\usepackage{newunicodechar}
+\newunicodechar{¬}{\ensuremath{\neg}}
+\newunicodechar{×}{\ensuremath{\times}}
+\newunicodechar{Γ}{\ensuremath{\Gamma}}
+\newunicodechar{Δ}{\ensuremath{\Delta}}
+\newunicodechar{Π}{\ensuremath{\Pi}}
+\newunicodechar{Σ}{\ensuremath{\Sigma}}
+\newunicodechar{Ω}{\ensuremath{\Omega}}
+\newunicodechar{α}{\ensuremath{\alpha}}
+\newunicodechar{β}{\ensuremath{\beta}}
+\newunicodechar{δ}{\ensuremath{\delta}}
+\newunicodechar{ε}{\ensuremath{\varepsilon}}
+\newunicodechar{η}{\ensuremath{\eta}}
+\newunicodechar{θ}{\ensuremath{\theta}}
+\newunicodechar{ι}{\ensuremath{\iota}}
+\newunicodechar{μ}{\ensuremath{\mu}}
+\newunicodechar{ν}{\ensuremath{\nu}}
+\newunicodechar{ρ}{\ensuremath{\rho}}
+\newunicodechar{σ}{\ensuremath{\sigma}}
+\newunicodechar{τ}{\ensuremath{\tau}}
+\newunicodechar{φ}{\ensuremath{\varphi}}
+\newunicodechar{χ}{\ensuremath{\chi}}
+\newunicodechar{ω}{\ensuremath{\omega}}
+\newunicodechar{ᵀ}{\ensuremath{^{\mathrm{T}}}}
+\newunicodechar{ᶜ}{\ensuremath{^{\mathrm{c}}}}
+\newunicodechar{′}{\ensuremath{'}}
+\newunicodechar{⁻}{\ensuremath{^{-}}}
+\newunicodechar{⁺}{\ensuremath{^{+}}}
+\newunicodechar{¹}{\ensuremath{^{1}}}
+\newunicodechar{₀}{\ensuremath{_{0}}}
+\newunicodechar{₁}{\ensuremath{_{1}}}
+\newunicodechar{₂}{\ensuremath{_{2}}}
+\newunicodechar{₃}{\ensuremath{_{3}}}
+\newunicodechar{𝓑}{\ensuremath{\mathcal{B}}}
+\newunicodechar{𝓞}{\ensuremath{\mathcal{O}}}
+\newunicodechar{𝓤}{\ensuremath{\mathcal{U}}}
+\newunicodechar{ℓ}{\ensuremath{\ell}}
+\newunicodechar{ℕ}{\ensuremath{\mathbb{N}}}
+\newunicodechar{𝟘}{\ensuremath{\mathbf{0}}}
+\newunicodechar{𝟙}{\ensuremath{\mathbf{1}}}
+\newunicodechar{𝟚}{\ensuremath{\mathbf{2}}}
+\newunicodechar{⋆}{\ensuremath{\star}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\newunicodechar{⇒}{\ensuremath{\Rightarrow}}
+\newunicodechar{↦}{\ensuremath{\mapsto}}
+\newunicodechar{∘}{\ensuremath{\circ}}
+\newunicodechar{∼}{\ensuremath{\sim}}
+\newunicodechar{≃}{\ensuremath{\simeq}}
+\newunicodechar{≤}{\ensuremath{\leq}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{＝}{\ensuremath{=}}
+\newunicodechar{⊕}{\ensuremath{\oplus}}
+\newunicodechar{⊗}{\ensuremath{\otimes}}
+\newunicodechar{⊑}{\ensuremath{\sqsubseteq}}
+\newunicodechar{⊴}{\ensuremath{\trianglelefteq}}
+\newunicodechar{⊲}{\ensuremath{\vartriangleleft}}
+\newunicodechar{⋖}{\ensuremath{\lessdot}}
+\newunicodechar{⊙}{\ensuremath{\odot}}
+\newunicodechar{▸}{\ensuremath{\blacktriangleright}}
+\newunicodechar{∋}{\ensuremath{\ni}}
+\newunicodechar{⟦}{\ensuremath{\llbracket}}
+\newunicodechar{⟧}{\ensuremath{\rrbracket}}
+\newunicodechar{⟨}{\ensuremath{\langle}}
+\newunicodechar{⟩}{\ensuremath{\rangle}}
+
+% ---------------------------------------------------------------------
+% Basic types and system T
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Baire}{\N^{\N}}
+% Dialogue trees are written B, as in the formalization, and Brouwer
+% codes are written with a calligraphic B, which is the renaming the
+% Agda files make for the same reason.
+\newcommand{\Dial}{\mathrm{B}}
+\newcommand{\Tm}{\mathrm{T}}
+\newcommand{\TmO}{\mathrm{T}^{\Omega}}
+\newcommand{\gr}{\iota}                      % the ground type
+\newcommand{\arr}{\Rightarrow}
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\dsem}[1]{\llbracket #1 \rrbracket_{\Dial}}
+\newcommand{\dtree}{\mathrm{dialogue\text{-}tree}}
+\newcommand{\height}{\mathrm{height}}
+\newcommand{\kext}[1]{#1^{*}}                % Kleisli extension
+\newcommand{\iterop}{\mathrm{iter}}
+% The combinators are set in bold upright, the constructors of the
+% Brouwer codes in sans serif, so that the combinator S and the
+% successor of a code are told apart on sight.
+\newcommand{\Iterc}{\mathbf{Iter}}
+\newcommand{\Kc}{\mathbf{K}}
+\newcommand{\Sc}{\mathbf{S}}
+\newcommand{\Zeroc}{\mathbf{Zero}}
+\newcommand{\Succc}{\mathbf{Succ}}
+
+% ---------------------------------------------------------------------
+% Brouwer codes and their arithmetic. The operations on codes are
+% written with the ordinary symbols of ordinal arithmetic, which is what
+% they denote, and the macros survive so that the source says which is
+% meant.
+\newcommand{\Brouwer}{\mathcal{B}}
+\newcommand{\bZ}{\mathsf{Z}}
+\newcommand{\bS}{\mathsf{S}}
+\newcommand{\bL}{\mathsf{L}}
+\newcommand{\bplus}{\mathbin{+}}
+\newcommand{\btimes}{\mathbin{\cdot}}
+\newcommand{\num}[1]{\underline{#1}}          % the code of a numeral
+\newcommand{\eps}{\varepsilon_{0}}
+\newcommand{\tower}[1]{\omega_{#1}}           % the tower of exponentials
+
+% ---------------------------------------------------------------------
+% Majorants and data
+\newcommand{\Maj}{\mathrm{Maj}}
+\newcommand{\maj}{\mathrel{\lhd}}             % the majorization relation R
+\newcommand{\Mj}{\mu}                         % the majorant of a term
+\newcommand{\ord}{\mathrm{ord}}
+% \wd is a TeX primitive, so the width of the data of a type is \dwd.
+\newcommand{\dwd}{\mathrm{w}}
+\newcommand{\W}{\mathrm{W}}
+\newcommand{\tsum}[1]{\textstyle\sum #1}
+\newcommand{\tle}{\mathrel{\sqsubseteq}}      % componentwise order on data
+\newcommand{\tsub}{\mathrel{\trianglelefteq}} % a datum inside a wider one
+\newcommand{\dom}{\mathrel{\preccurlyeq}}     % the domination predicate
+\newcommand{\act}[2]{#1[#2]}                  % action of a cascade or a map
+\newcommand{\rd}[1]{\langle #1 \rangle}       % the map a tuple is read as
+
+% ---------------------------------------------------------------------
+% Pointers into the Agda formalization are set in a light blue so that
+% they are easy to tell apart from the mathematical text. They can be
+% turned off in one place by setting the switch to \agdarefsfalse, which
+% makes every \AgdaRefs print nothing while leaving its argument in the
+% source. They are on while the paper is being verified.
+\definecolor{agdablue}{HTML}{5E8CB8}
+\newif\ifagdarefs
+\agdarefstrue
+\newcommand{\AgdaRefs}[1]{\ifagdarefs{\footnotesize\color{agdablue}(#1)}\else\unskip\fi}
+
+% Claims made in running prose, outside any numbered environment, are
+% named with \claim{name} so that a companion file can point back at
+% them, and the names are written to \jobname.claims in the order they
+% occur. Every claim of this paper sits in a numbered environment with a
+% pointer of its own, so nothing uses this yet.
+\newwrite\claimfile
+\immediate\openout\claimfile=\jobname.claims
+\newcommand{\claim}[1]{%
+  \ifagdarefs{\footnotesize\color{agdablue}[#1]}\else\unskip\fi
+  \immediate\write\claimfile{#1}}
+
+%   \Agda{Module.Path}{identifier-or-identifiers}
+% A module-only pointer is written with an empty second argument, and the
+% separating dot is then suppressed.
+\newcommand{\Agda}[2]{{\footnotesize\color{agdablue}\textsf{#1}%
+  \ifblank{#2}{}{\texttt{.}\allowbreak\texttt{#2}}}}
+\newcommand{\AgdaModule}[1]{{\footnotesize\color{agdablue}\textsf{#1}}}
+
+% Continuation entries in a pointer list are written as bare \texttt{},
+% so colour and shrink that too. Every \texttt in this paper is an Agda
+% identifier or an Agda compiler flag.
+\makeatletter
+\let\ttt@plain\texttt
+\renewcommand{\texttt}[1]{{\footnotesize\color{agdablue}\ttt@plain{#1}}}
+\makeatother
+
+% ---------------------------------------------------------------------
+% All theorem-like environments share the theorem counter, so that the
+% numbering is a single sequence per section. Sharing a counter the plain
+% way would make cleveref call every one of them a theorem, since it
+% names references by counter, so aliascnt gives each environment its own
+% counter name kept in step with the theorem counter.
+\usepackage{aliascnt}
+\newcommand{\sharedtheorem}[3]{%
+  \newaliascnt{#1}{theorem}%
+  \newtheorem{#1}[#1]{#2}%
+  \aliascntresetthe{#1}%
+  \crefname{#1}{#2}{#3}%
+  \Crefname{#1}{#2}{#3}%
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\crefname{theorem}{Theorem}{Theorems}
+\Crefname{theorem}{Theorem}{Theorems}
+\crefname{section}{Section}{Sections}
+\Crefname{section}{Section}{Sections}
+\crefname{appendix}{Appendix}{Appendices}
+\Crefname{appendix}{Appendix}{Appendices}
+\crefname{subsection}{Section}{Sections}
+\Crefname{subsection}{Section}{Sections}
+\sharedtheorem{proposition}{Proposition}{Propositions}
+\sharedtheorem{lemma}{Lemma}{Lemmas}
+\sharedtheorem{corollary}{Corollary}{Corollaries}
+
+\theoremstyle{definition}
+\sharedtheorem{definition}{Definition}{Definitions}
+\sharedtheorem{example}{Example}{Examples}
+\sharedtheorem{examples}{Examples}{Examples}
+\sharedtheorem{remark}{Remark}{Remarks}
+\sharedtheorem{notation}{Notation}{Notations}
+\sharedtheorem{question}{Question}{Questions}
+
+% ---------------------------------------------------------------------
+% The short form in brackets is the running head, the full title being
+% too long for one line at the top of a page.
+\title[Dialogue trees of system T]{The dialogue trees of system T have
+  height below $\varepsilon_0$, and this bound is sharp}
+\date{\today}
+
+\begin{document}
+
+\begin{abstract}
+  The dialogue interpretation of G\"odel's system T assigns to each
+  closed term of type $(\gr\arr\gr)\arr\gr$ a well founded tree,
+  branching over the natural numbers, whose nodes record the queries
+  the term makes to its oracle. We prove that the height of this tree,
+  measured as a Brouwer ordinal code, is below~$\eps$, and that
+  $\eps$ is the least such bound, a closed term attaining the height
+  $\tower n$ for every~$n$. The upper bound assigns to every term,
+  by induction on its type, a majorant built from addition, suprema
+  and suprema of iterates, and bounds the majorant by a tuple of codes
+  graded by the order of the type, in which an entry is raised only by
+  entries of its own order or higher. The lower bound runs Church
+  encodings of the approximants of~$\eps$ against the oracle. The
+  development is formalized in Agda, with function extensionality as
+  its only assumption. Xiao and Sun have proved the same bound, with
+  a computable tower level for each term, over classical ordinals.
+  The proof offered here is an alternative one, constructive, and it
+  settles the sharpness question that they leave open.
+\end{abstract}
+
+\maketitle
+
+\noindent
+This paper and its accompanying formalization were developed by LLM's
+under Mart\'in Escard\'o's direction. He has verified the correctness
+of the formulation of the main theorems in the Agda code and takes
+responsibility for this. However, he takes no responsibility for the
+correctness of this paper, but see the precautions taken
+in~\cref{sec:appendix}. This paper would greatly benefit from further
+human care.
+
+\section{Introduction}
+\label{sec:intro}
+
+G\"odel's system T defines only continuous functionals
+$\Baire\to\N$. One proof of this, by effectful forcing, interprets
+each closed term $t$ of type $(\gr\arr\gr)\arr\gr$ as a dialogue
+tree~\cite{Escardo2013}: a well founded tree, branching over the
+natural numbers, whose nodes carry the queries the term makes to its
+oracle and whose leaves carry its answers. Continuity is read off the
+tree, since a leaf is reached after finitely many queries. The trees
+are Church encoded within system T itself
+in~\cite{EscardoPaivaRahliTosun2025}.
+
+The tree is well founded, so it has an ordinal height, and the
+question is how large that height can be. The answer is that the
+height is below~$\eps$, and that no smaller ordinal bounds the heights
+of all the trees.
+
+The first of these was proved by Xiao and Sun~\cite{XiaoSun2026}, who
+compute from each term a tower level below~$\eps$ bounding the height
+of its tree, by translating recursors into closed infinitary templates
+and removing redexes in a sequence of passes indexed by type level.
+Their ordinals are the classical ones, and their formalization assumes
+excluded middle for the propositions of the second universe, along
+with univalence, propositional truncation and set replacement. They
+write that they do not claim the bound sharp, and they leave open
+whether the heights are cofinal in~$\eps$.
+
+What this paper adds is twofold. The proof is constructive: the
+ordinals are Brouwer codes with their syntactic order, so the whole
+development assumes function extensionality and nothing else, and a
+bound in that order implies the classical one. And the heights are
+shown to be cofinal in~$\eps$ (\cref{cor:least}), which answers the
+question Xiao and Sun leave open and makes $\eps$ the least bound.
+What this paper does not supply is their computable tower level: the
+bound obtained here is $\eps$ itself, with no finite level named for a
+given term.
+
+Two features of the problem shape the proof. The first is that the
+height of the tree of a term is not a function of the values the term
+computes. A term whose numerical output is small may ask the oracle a
+number of questions that no bound on its output predicts, so an
+ordinal assignment bounding the values of a term, such as Howard's
+\cite{Howard1970}, does not by itself bound the height of its dialogue
+tree. The second is that the recursor at higher types iterates a
+functional rather than a number, and the bound for the iterates has to
+be hereditary in the type.
+
+We meet the first by bounding the height directly, with a logical
+relation over the types of system T whose ground case reads
+\[
+  \height(d) \le a ,
+\]
+for a dialogue tree $d$ and a Brouwer code~$a$. We meet the second by
+making the majorant hereditary, with a pointwise supremum and a
+pointwise translation at every type, so that the recursor acquires a
+majorant at every type and not only at the ground type. This reduces
+the theorem to a statement of ordinal arithmetic
+(\cref{thm:reduction}): the majorant of a closed term of ground type
+is below~$\eps$.
+
+A majorant is a functional over Brouwer codes, built from addition
+and from suprema, among them the suprema of iterates. To bound one by
+an ordinal below~$\eps$ we bound it by a tuple of codes graded by the
+order of the type: a
+translation at order~$0$, an exponent at order~$1$, the exponent of
+that exponent at order~$2$, and so on. One rule governs the whole
+construction, that an entry is raised only by entries of its own order
+or higher, which is the rule that iterating $x\mapsto\omega^{x}$
+breaks. The maps between such tuples that obey the rule form a
+calculus with application, abstraction and projection
+(\cref{sec:graded}), and the two hard clauses of the induction on
+terms, the one for~$\Sc$ and the one for the recursor, are then
+written as a reader of $\lambda f\,g\,a.\,f\,a\,(g\,a)$ would write
+them.
+
+For the lower bound we write Church encodings of the approximants
+of~$\eps$ as terms of system T, after Coquand, Hancock and
+Setzer~\cite{CoquandHancockSetzer1997}, and run them against the
+oracle through an algebra that places one query above the tree built
+so far. A parametricity argument shows that the resulting tree has the
+intended height.
+
+\subsection*{The formalization}
+
+Every result below carries a pointer, set in blue, to the Agda
+definition that proves it. The modules named live under the prefix
+\AgdaModule{DialogueTreesHeight}, which the pointers leave out,
+within the development accompanying this paper, available at
+\url{https://github.com/martinescardo/DialogueTreesHeight}, and the
+modules whose names begin with \AgdaModule{Ordinals} or \AgdaModule{EffectfulForcing} are those
+of the \texttt{TypeTopology} library. Everything is checked with the
+flags \texttt{--safe} and \texttt{--without-K}, with no postulates and
+no holes. The one assumption is function extensionality, which is a
+parameter of every module and is used at the limit case of each
+arithmetic law proved by induction. The pointers can be suppressed by
+setting \texttt{\textbackslash agdarefsfalse} in the preamble.
+
+\section{Dialogue trees and their heights}
+\label{sec:dialogue}
+
+We recall the dialogue trees of~\cite{Escardo2013}, the functor and
+monad they form, and the dialogue interpretation that assigns a tree
+to each closed term of system T.
+
+\begin{definition}[Dialogue trees]
+\label{def:dialogue-tree-type}
+For a type~$X$, the type $\Dial X$ of dialogue trees over~$X$ is
+inductively generated by
+\[
+  \eta : X \to \Dial X , \qquad
+  \beta : (\N \to \Dial X) \to \N \to \Dial X .
+\]
+A tree $\beta\,\varphi\,i$ asks the oracle for its value at~$i$ and
+continues with $\varphi\,j$ when the answer is~$j$, and a tree $\eta\,x$
+answers~$x$. Running a tree against an oracle $\alpha : \Baire$ gives
+\[
+  \mathrm{dialogue} : \Dial X \to \Baire \to X ,
+\]
+defined by $\mathrm{dialogue}\,(\eta\,x)\,\alpha = x$ and
+$\mathrm{dialogue}\,(\beta\,\varphi\,i)\,\alpha =
+ \mathrm{dialogue}\,(\varphi\,(\alpha\,i))\,\alpha$.
+\AgdaRefs{\Agda{EffectfulForcing.MFPSAndVariations.Dialogue}{D};
+\texttt{B}, \texttt{dialogue}.}
+\end{definition}
+
+The operation $\Dial$ is a functor, the tree $\Dial f\,d$ being $d$
+with its leaves relabelled by~$f$, and a monad. We write $\kext g$ for
+the Kleisli extension of $g : X \to \Dial Y$, which grafts the tree
+$g\,x$ onto each leaf $\eta\,x$, and
+$\mathrm{generic} = \kext{(\beta\,\eta)}$ for the generic oracle,
+which asks the oracle at the value a tree computes.
+\AgdaRefs{\Agda{EffectfulForcing.MFPSAndVariations.Dialogue}{kleisli-extension};
+\texttt{generic}, \texttt{B-functor}.}
+
+We write $\iterop$ for iteration on the natural numbers,
+$\iterop\,f\,x\,0 = x$ and
+$\iterop\,f\,x\,(n+1) = f\,(\iterop\,f\,x\,n)$.
+\AgdaRefs{\Agda{EffectfulForcing.MFPSAndVariations.Combinators}{iter}.}
+
+\begin{definition}[The dialogue interpretation]
+\label{def:dialogue-interpretation}
+Write $\Tm\sigma$ for the closed terms of the combinatory system T,
+with constants $\Zeroc$, $\Succc$, $\Iterc$, $\Kc$ and~$\Sc$, and
+$\TmO\sigma$ for the same language extended with a constant $\Omega$
+of type $\gr\arr\gr$ for the oracle. The dialogue interpretation of a
+type is
+\[
+  \dsem{\gr} = \Dial\N , \qquad
+  \dsem{\sigma\arr\tau} = \dsem{\sigma} \to \dsem{\tau} ,
+\]
+and the dialogue interpretation of a closed term $t$ of $\TmO\sigma$
+is an element $\dsem{t}$ of~$\dsem\sigma$, the same brackets serving
+for both because the argument says which is meant. It interprets
+$\Omega$ as $\mathrm{generic}$, $\Zeroc$ as $\eta\,0$, $\Succc$ as
+$\Dial$ applied to the successor, $\Kc$ and~$\Sc$ as the projection
+and the substitution, and the recursor $\Iterc$ at type~$\sigma$ as
+\[
+  \iterop'\,f\,x = \kext{(\iterop\,f\,x)} ,
+\]
+the Kleisli extension taken at type~$\sigma$. The dialogue tree of a
+closed term $t : (\gr\arr\gr)\arr\gr$ is
+$\dtree(t) = \dsem{\overline t \cdot \Omega}$, where $\overline t$ is
+the image of~$t$ in~$\TmO$.
+\AgdaRefs{\Agda{EffectfulForcing.MFPSAndVariations.MFPS-XXIX}{B⟦\_⟧};
+\texttt{B-Set⟦\_⟧}, \texttt{Kleisli-extension}, \texttt{iter'},
+\texttt{dialogue-tree};
+\Agda{EffectfulForcing.MFPSAndVariations.CombinatoryT}{T},
+\texttt{TΩ}, \texttt{embedding}.}
+\end{definition}
+
+The Kleisli extension in that definition is taken at an arbitrary
+type, which asks for more than the monad supplies. For
+$g : \N \to \dsem\sigma$ and a tree $d$, define $\kext g\,d$ in
+$\dsem\sigma$ by recursion on the type: at the ground type it is the
+Kleisli extension of the monad, and at an arrow it acts under the
+argument,
+\[
+  (\kext g\,d)\,s = \kext{(k \mapsto g\,k\,s)}\,d .
+\]
+\AgdaRefs{\Agda{EffectfulForcing.MFPSAndVariations.MFPS-XXIX}{Kleisli-extension}.}
+
+The constant $\Iterc$ iterates a function rather than performing
+primitive recursion, and we call it the recursor throughout. We also
+abbreviate combinatory terms by $\lambda$-notation, as in
+$\lambda f.\,f\,0$ for $\Sc\cdot I\cdot(\Kc\cdot\Zeroc)$, where
+$I = \Sc\cdot\Kc\cdot\Kc$ is the identity, the abbreviation standing
+for the term that bracket abstraction produces.
+
+The height of a dialogue tree is defined in the next section, once the
+Brouwer codes are at hand.
+
+\section{Brouwer codes and their arithmetic}
+\label{sec:codes}
+
+We take the ordinals to be Brouwer codes with their syntactic order,
+for which the successor is monotone by construction, define addition,
+multiplication, exponentiation and the tower whose supremum is~$\eps$,
+record the closure properties of~$\eps$ that the proof uses, and
+define the height of a dialogue tree with its three properties.
+
+A classical treatment would interpret the height of a dialogue tree as
+an ordinal in the sense of the univalent library, and then the grafting
+and generic lemmas need excluded middle, because the successor map on
+ordinals is not monotone without it. Brouwer codes with their
+syntactic order avoid this.
+\AgdaRefs{\Agda{Ordinals.AdditionProperties}{succ-not-necessarily-monotone}.}
+
+\begin{definition}[Brouwer codes and their order]
+\label{def:codes}
+The type $\Brouwer$ of Brouwer ordinal codes is inductively generated
+by
+\[
+  \bZ : \Brouwer , \qquad
+  \bS : \Brouwer \to \Brouwer , \qquad
+  \bL : (\N \to \Brouwer) \to \Brouwer .
+\]
+The order $\le$ on~$\Brouwer$ is inductively generated by four rules,
+the least element property, the successor rule, the cocone and the
+limit rule, saying that $\bZ$ is least, that the successor is
+monotone, that $\bL f$ is above each $f\,n$, and that $\bL f$ is below
+every upper bound of the family~$f$:
+\[
+  \frac{\ }{\bZ \le b} \qquad
+  \frac{a \le b}{\bS a \le \bS b} \qquad
+  \frac{a \le f\,n}{a \le \bL f} \qquad
+  \frac{f\,n \le b \ \text{for every $n$}}{\bL f \le b} .
+\]
+We write $a < b$ for $\bS a \le b$.
+\AgdaRefs{\Agda{Ordinals.BrouwerCodes}{B};
+\Agda{BrouwerOrdinals.Order}{\_≤\_},
+\Agda{BrouwerOrdinals.Epsilon0}{\_<\_}.}
+\end{definition}
+
+A limit is therefore the least upper bound of its family, and the
+successor is monotone for arbitrary codes, which is what the classical
+reading lacks. The order is reflexive and transitive, transitivity by a
+lexicographic recursion that descends on the left proof when it is a
+limit and on the right proof otherwise.
+\AgdaRefs{\Agda{BrouwerOrdinals.Order}{≤-refl}; \texttt{≤-trans},
+\texttt{≤-L-mono}, \texttt{≤-L-upper-bound}.}
+
+\begin{remark}
+\label{rem:one-branch}
+Two asymmetries of the order govern what can be proved about it. A
+lower bound $a \le \bL f$ holds as soon as $a \le f\,n$ for a single
+branch~$n$, while an upper bound $\bL f \le b$ asks for every member of
+the family. A numeral therefore fits under one branch of a tree, which
+is what makes a lower bound of~$\omega$ available by induction
+(\cref{prop:omega-attained}), and a limit does not, which is why the
+lower bounds of~\cref{sec:sharp} go through terms rather than through
+the order alone.
+\end{remark}
+
+\begin{definition}[Arithmetic of codes]
+\label{def:arithmetic}
+Addition, multiplication and base~$\omega$ exponentiation are defined
+by recursion on the right argument, respectively on the exponent:
+\begin{align*}
+  a \bplus \bZ    &= a ,                      &
+  a \btimes \bZ   &= \bZ ,                    &
+  \omega^{\bZ}    &= \bS\,\bZ ,               \\
+  a \bplus \bS b  &= \bS (a \bplus b) ,       &
+  a \btimes \bS b &= (a \btimes b) \bplus a , &
+  \omega^{\bS a}  &= \omega^{a} \btimes \omega , \\
+  a \bplus \bL f  &= \bL (n \mapsto a \bplus f\,n) , &
+  a \btimes \bL f &= \bL (n \mapsto a \btimes f\,n) , &
+  \omega^{\bL f}  &= \bL (n \mapsto \omega^{f\,n}) .
+\end{align*}
+The numerals are $\num 0 = \bZ$ and $\num{n+1} = \bS\,\num n$, the
+limit $\omega$ is $\bL(n\mapsto\num n)$, the tower is
+$\tower 0 = \omega$ and $\tower{n+1} = \omega^{\tower n}$, and
+\[
+  \eps = \bL(n \mapsto \tower n) .
+\]
+\AgdaRefs{\Agda{BrouwerOrdinals.Order}{\_⊕\_};
+\Agda{BrouwerOrdinals.Multiplication}{ι[\_]}, \texttt{ω}, \texttt{\_⊗\_};
+\Agda{BrouwerOrdinals.Epsilon0}{ω\^{}\_}, \texttt{tower}, \texttt{ε₀}.}
+\end{definition}
+
+The equation $a \bplus \bS b = \bS(a \bplus b)$ makes addition on the
+left commute with successors and limits definitionally, which is what
+the inductions below rely on. Addition is associative and monotone in
+each argument, multiplication by a fixed code on the left distributes
+over addition and is associative and monotone in each argument, and
+exponentiation is monotone and inflationary.
+\AgdaRefs{\Agda{BrouwerOrdinals.Multiplication}{⊕-assoc};
+\texttt{⊕-mono-left}, \texttt{⊗-left-distrib}, \texttt{⊗-assoc};
+\Agda{BrouwerOrdinals.Epsilon0}{⊕-mono-right}, \texttt{⊗-mono-left},
+\texttt{⊗-mono-right}, \texttt{ω\^{}-mono}, \texttt{≤-ω\^{}}.}
+
+\begin{lemma}[The tower is strictly increasing]
+\label{lem:tower}
+For every~$n$ we have $\tower n < \tower{n+1}$, and hence
+$\tower n < \eps$.
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{tower-strict};
+\texttt{tower-<-ε₀}.}
+\end{lemma}
+
+\begin{proof}
+A direct induction on~$n$ has to put the successor of the limit
+$\tower n$ below the limit $\tower{n+1}$, which by the cocone rule
+needs a single member of the latter above the whole of the former,
+and the induction hypothesis supplies none. The obstruction is
+removed by a descent:
+strictness at $\omega^{b}$ reduces, through
+$\bS(\omega^{b}) \le \omega^{b} \bplus \omega^{b} \le \omega^{b}
+ \btimes \omega$ and monotonicity of the exponential, to strictness
+at~$b$, and the descent stops at $\omega < \omega^{\omega}$, which is
+proved from $\omega^{\num 1} = \omega$.
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{S-ω\^{}-step};
+\texttt{ω\^{}-ι1}, \texttt{ω<ω\^{}ω}.}
+\end{proof}
+
+\begin{proposition}[Closure of $\eps$]
+\label{prop:closure}
+If $a < \eps$ then $\bS a < \eps$ and $\omega^{a} < \eps$, and if
+$b < \eps$ as well then $a \bplus b < \eps$ and $a \btimes b < \eps$.
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{⊕-<-ε₀}; \texttt{S-<-ε₀},
+\texttt{ω\^{}-<-ε₀}; \Agda{BrouwerOrdinals.MultClosure}{⊗-<-ε₀}.}
+\end{proposition}
+
+\begin{proof}
+A proof of $a < \eps$ can be inverted to a tower level by a single
+pattern match, since the cocone rule is the only one that puts a
+successor below the limit~$\eps$. Two codes below~$\eps$ are therefore
+pushed to a common tower level, and the sum is absorbed one level up
+by $\tower n \bplus \tower n \le \tower{n+1}$, the product by
+$\tower n \btimes \tower n \le \tower{n+1}$.
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{tower-double};
+\texttt{tower-mono-ℕ}; \Agda{BrouwerOrdinals.MultClosure}{tower-sq},
+\texttt{ω\^{}⊗}.}
+\end{proof}
+
+\begin{definition}[The height of a dialogue tree]
+\label{def:height}
+The height of a dialogue tree is the Brouwer code
+\[
+  \height(\eta\,n) = \bZ , \qquad
+  \height(\beta\,\varphi\,i) = \bL(n \mapsto \bS\,\height(\varphi\,n)) ,
+\]
+that is, $0$ at a leaf and the supremum of the heights of the subtrees
+raised by one at a query node. The query index is ignored, the height
+depending on the branching structure alone.
+\AgdaRefs{\Agda{DialogueTrees.Constructive}{height}.}
+\end{definition}
+
+\begin{lemma}[Relabelling, grafting and the generic oracle]
+\label{lem:height-three}
+Let $f : \N\to\N$, let $g : \N \to \Dial\N$, let $b : \Brouwer$ and let
+$d : \Dial\N$.
+\begin{enumerate}
+\item\label{item:relabel}
+  $\height(\Dial f\,d) = \height(d)$.
+\item\label{item:graft}
+  If $\height(g\,k) \le b$ for every~$k$, then
+  $\height(\kext g\,d) \le b \bplus \height(d)$.
+\item\label{item:generic}
+  $\height(\mathrm{generic}\,d) \le \bS\,\height(d)$.
+\end{enumerate}
+\AgdaRefs{\Agda{DialogueTrees.Constructive}{height-relabel};
+\texttt{height-kleisli-extension}, \texttt{height-generic}.}
+\end{lemma}
+
+\begin{proof}
+All three are inductions on~$d$. In
+(\labelcref{item:relabel}) the height ignores the values at the
+leaves, and this is the only one of the three that uses function
+extensionality, to pass from a pointwise identification of two
+families to an identification of their limits.
+In (\labelcref{item:graft}) the summand~$b$ is on the left because the
+structure of~$d$ lies above the grafted trees, and the successor step
+is unconditional, which is what makes the proof constructive. Part
+(\labelcref{item:generic}) amounts to grafting a single query, since
+$\mathrm{generic} = \kext{(\beta\,\eta)}$, and is proved by an
+induction of its own rather than as an instance
+of~(\labelcref{item:graft}).
+\end{proof}
+
+\section{Majorants and the reduction to ordinal arithmetic}
+\label{sec:majorant}
+
+We assign to each term a hereditary majorant, extend the assignment to
+the recursor at every type by equipping the majorants with a pointwise
+supremum and a pointwise translation, and reduce the theorem to the
+statement that the majorant of a closed term of ground type is
+below~$\eps$.
+
+\begin{definition}[Majorants]
+\label{def:majorant}
+The type of majorants of a system T type is defined by recursion on
+the type,
+\[
+  \Maj(\gr) = \Brouwer , \qquad
+  \Maj(\sigma\arr\tau) = \Maj(\sigma) \to \Maj(\tau) ,
+\]
+and so is the relation of being majorized:
+\begin{align*}
+  x \maj_{\gr} a &\quad\text{means}\quad \height(x) \le a , \\
+  F \maj_{\sigma\arr\tau} \varphi &\quad\text{means that}\quad
+    x \maj_{\sigma} a \ \text{implies}\ F\,x \maj_{\tau} \varphi\,a ,
+\end{align*}
+the latter for all $x$ and~$a$.
+\AgdaRefs{\Agda{DialogueTrees.Majorant}{Maj}; \texttt{R}.}
+\end{definition}
+
+\begin{definition}[Majorants of the combinators]
+\label{def:majorant-combinators}
+The constant $\Zeroc$ has majorant~$\bZ$, the successor has the
+identity, since relabelling preserves the height, the oracle has the
+successor $a \mapsto \bS a$, and $\Kc$ and~$\Sc$ have the projection
+$(a,b)\mapsto a$ and the substitution
+$(\varphi,\gamma,a) \mapsto \varphi\,a\,(\gamma\,a)$. Each combinator
+is majorized by its majorant.
+\AgdaRefs{\Agda{DialogueTrees.Majorant}{μ-Zero}; \texttt{μ-Succ},
+\texttt{μ-Ω}, \texttt{μ-K}, \texttt{μ-S}, \texttt{R-Zero},
+\texttt{R-Succ}, \texttt{R-Ω}, \texttt{R-K}, \texttt{R-S}.}
+\end{definition}
+
+The recursor is the remaining constant. At ground type its majorant is
+the supremum of the iterates of a family of codes, and at a type
+$\sigma\arr\tau$ a majorant was missing. We supply one at every type.
+
+\begin{definition}[Supremum and translation]
+\label{def:maj-sup}
+The pointwise supremum and the pointwise right translation on
+majorants are defined by recursion on the type, acting under the
+argument at an arrow:
+\begin{align*}
+  \textstyle\sup_{\gr} h &= \bL h , &
+  a \bplus_{\gr} \nu &= a \bplus \nu , \\
+  \textstyle(\sup_{\sigma\arr\tau} h)\,a
+    &= \textstyle\sup_{\tau} (k \mapsto h\,k\,a) , &
+  (\varphi \bplus_{\sigma\arr\tau} \nu)\,a
+    &= (\varphi\,a) \bplus_{\tau} \nu .
+\end{align*}
+\AgdaRefs{\Agda{DialogueTrees.MajorantAll}{Maj-sup};
+\texttt{Maj-⊕},
+\texttt{μ-Kleisli}.}
+\end{definition}
+
+\begin{lemma}[The hereditary Kleisli bound]
+\label{lem:kleisli-bound}
+Let $g : \N \to \dsem\sigma$ and $h : \N \to \Maj(\sigma)$ satisfy
+$g\,k \maj_{\sigma} h\,k$ for every~$k$, and let $d$ be a dialogue tree
+with $\height(d) \le \nu$. Then
+\[
+  \kext g\,d \ \maj_{\sigma}\
+  \big(\textstyle\sup_{\sigma} h\big) \bplus_{\sigma} \nu .
+\]
+\AgdaRefs{\Agda{DialogueTrees.MajorantAll}{R-Kleisli}.}
+\end{lemma}
+
+\begin{proof}
+By induction on~$\sigma$. At the ground type the grafting lemma
+applies with the bound $\bL h$, which the upper bound property of the
+limit supplies, and monotonicity of addition in its right argument
+then passes from $\height(d)$ to~$\nu$; see
+\cref{lem:height-three}(\labelcref{item:graft}). The arrow case holds
+by definition on both
+sides, the Kleisli extension, the supremum and the translation all
+passing under the argument in the same way.
+\end{proof}
+
+\begin{definition}[The majorant of a term]
+\label{def:majorant-term}
+The majorant of the recursor at type~$\sigma$ is
+\[
+  \Mj_{\Iterc}\,\varphi\,a\,\nu
+  = \big(\textstyle\sup_{\sigma}(k \mapsto \iterop\,\varphi\,a\,k)\big)
+     \bplus_{\sigma} \nu ,
+\]
+and the majorant $\Mj(t)$ of a term of~$\TmO$ is defined by the
+constants above and $\Mj(t\cdot u) = \Mj(t)\,\Mj(u)$.
+\AgdaRefs{\Agda{DialogueTrees.MajorantAll}{μ-Iterᵀ}; \texttt{μᵀ},
+\texttt{R-Iterᵀ}.}
+\end{definition}
+
+\begin{theorem}[The fundamental theorem for majorants]
+\label{thm:fundamental-majorant}
+Every closed term $t$ of~$\TmO\sigma$ satisfies
+$\dsem t \maj_{\sigma} \Mj(t)$. In particular, for a closed term
+$t : (\gr\arr\gr)\arr\gr$ of system T,
+\[
+  \height(\dtree(t)) \le \Mj(\overline t \cdot \Omega) .
+\]
+\AgdaRefs{\Agda{DialogueTrees.MajorantAll}{fundamentalᵀ};
+\texttt{dialogue-tree-height-≤-μᵀ}.}
+\end{theorem}
+
+\begin{proof}
+By induction on the term. Every case but the recursor is the majorant
+of the corresponding combinator, and the recursor is
+\cref{lem:kleisli-bound} applied to the iterates, which are majorized
+by induction on the iteration count.
+\end{proof}
+
+\begin{theorem}[The reduction]
+\label{thm:reduction}
+Let $t : (\gr\arr\gr)\arr\gr$ be a closed term of system T. If
+$\Mj(\overline t \cdot \Omega) < \eps$ then
+$\height(\dtree(t)) < \eps$.
+\AgdaRefs{\Agda{DialogueTrees.MajorantAll}{dialogue-height-<-ε₀}.}
+\end{theorem}
+
+\begin{proof}
+\Cref{thm:fundamental-majorant} bounds the height by the majorant, and
+the successor is monotone, so
+\[
+  \bS\,\height(\dtree(t)) \ \le\ \bS\,\Mj(\overline t \cdot \Omega)
+  \ \le\ \eps ,
+\]
+the second inequality being the hypothesis.
+\end{proof}
+
+The hypothesis concerns Brouwer codes alone, $\Mj(t)$ being a
+hereditary functional over codes built from addition, suprema and
+suprema of iterates. The rest of the paper proves that hypothesis, in
+the form $\Mj(t) < \eps$ for every closed term $t$ of~$\TmO\gr$.
+
+\section{Graded maps}
+\label{sec:graded}
+
+We define the data and their grading, the scalar maps between them
+whose exponents are again maps, and the rectangular maps between data
+of any two widths, with the four facts about them that the induction
+on terms uses.
+
+\subsection{Data and their grading}
+\label{sec:data}
+
+A \emph{datum of width~$n$} is an $n$-tuple of Brouwer codes, written
+$\Brouwer^{n}$. Its entry at position~$j$ is its entry \emph{of
+order~$j$}, where order~$0$ is a translation, order~$1$ an exponent,
+order~$2$ the exponent of an exponent, and so on. We write $\tsum t$
+for the sum of the entries of~$t$, we write $t \tle u$ for the
+componentwise order on data of equal width, and we say that a datum is
+\emph{small} when each of its entries is below~$\eps$. A datum $t$ of
+width~$k$ sits inside a datum $u$ of width~$n$, written $t \tsub u$,
+when $k \le n$ and each entry of~$t$ is below the entry of~$u$ of the
+same order.
+\AgdaRefs{\Agda{BrouwerOrdinals.MoveTuple}{Tup}; \texttt{tsum},
+\texttt{\_⊑\_}, \texttt{All<}, \texttt{tsum-mono},
+\texttt{tsum-<-ε₀}; \Agda{BrouwerOrdinals.RectAlgebra}{\_⊴\_}.}
+
+\begin{remark}
+\label{rem:grading-rule}
+One rule governs every construction below: an entry of the output is
+raised only by entries of the input of its own order or higher. The
+rule is what the iterates of $x \mapsto \omega^{x}$ break, since each
+iterate raises the exponent by the value below it, and it is what
+keeps the whole construction below~$\eps$, by
+\cref{prop:closure}.
+\end{remark}
+
+\subsection{Scalar maps and cascades}
+\label{sec:cascades}
+
+At the ground type the maps needed are of the form
+$a \mapsto (a \bplus t) \btimes \omega^{s}$, with a fixed
+exponent~$s$. The combinator~$\Sc$ asks for
+more, since the datum of $f\,a\,(g\,a)$ carries an exponent that varies
+with~$a$, so we let the exponent be a map of the same kind one order
+up.
+\AgdaRefs{\Agda{BrouwerOrdinals.Move}{Move}; \texttt{img},
+\texttt{orbit}, \texttt{move-orbit}, \texttt{padMove}.}
+
+\begin{definition}[Cascades]
+\label{def:cascade}
+A \emph{cascade} of width~$k$ is a tuple of $k+1$ codes, one per
+order of the datum it reads and a last one standing alone, and its
+action on a datum of width~$k$ is defined by
+\[
+  \act{(c,E)}{(a,t)} = \big((a \bplus \tsum t) \bplus c\big)
+    \btimes \omega^{\act{E}{t}} , \qquad
+  \act{c}{\star} = c ,
+\]
+so that it reads the whole datum in its base and only the tail in its
+exponent, the exponent being again a cascade. A cascade is
+\emph{small} when each of its codes is below~$\eps$.
+\AgdaRefs{\Agda{BrouwerOrdinals.Cascade}{Sc}; \texttt{valSc},
+\texttt{ScAll<}.}
+\end{definition}
+
+\begin{remark}
+\label{rem:last-grade}
+The recursion ends at a free constant rather than at a translation,
+and the choice is forced. A cascade whose exponent at the last grade
+were read off a grade below it has no grade below to read, so that
+exponent would be~$\bZ$; since $\omega^{\bZ} = \bS\,\bZ$ and
+$x \btimes \bS\,\bZ = x$, the last grade would act by a translation,
+and a translation cannot absorb a doubling: with $x$ the entry and $t$
+the translation, $x \bplus x \le x \bplus t$ fails at
+$x = t \bplus 1$, whatever $t$ is, since $x$ is chosen after it. With
+a constant that the cascade carries itself, a doubling is paid at
+every grade by one successor on the grade above.
+\AgdaRefs{\Agda{BrouwerOrdinals.Cascade}{valSc-join};
+\texttt{valSc-suc}.}
+\end{remark}
+
+\begin{lemma}
+\label{lem:cascade-basic}
+A small cascade takes a small datum to a code below~$\eps$, it is
+monotone in the datum, its value at a datum is above the first entry
+of the datum and above its own first code, and the sum of the values
+of two cascades at one datum is below the value of a single cascade
+there.
+\AgdaRefs{\Agda{BrouwerOrdinals.Cascade}{valSc-<-ε₀};
+\texttt{valSc-mono},
+\texttt{valSc-join}, \texttt{valSc-increasing}, \texttt{valSc-const}.}
+\end{lemma}
+
+\subsection{Rectangular maps}
+\label{sec:rect}
+
+\begin{definition}[Graded maps]
+\label{def:rect}
+A \emph{graded map} from width~$p$ to width~$q$ is given, for each
+output order~$j$, by a cascade reading the input orders~$j$ and above.
+Its action is
+\[
+  \act{(E,D)}{(a,t)} = \big(\act{E}{(a,t)} , \act{D}{t}\big) ,
+\]
+the first component being a cascade on the whole input and the rest a
+graded map applied to the tail. The datum of such a map is held as the
+triangular array it is, one cascade per output order, each shorter
+than the last, and a bare constant once the input orders are
+exhausted.
+\AgdaRefs{\Agda{BrouwerOrdinals.Rect}{RD}; \texttt{rect},
+\texttt{RDAll<},
+\texttt{rect-All<}, \texttt{rect-increasing}.}
+\end{definition}
+
+For the datum of a map to be a datum in its turn it has to be a tuple
+as well. Writing $\W(p,q) = \max(p+1,q)$, a tuple $d$ of width
+$\W(p,q)$ is read as a graded map $\rd d$ from width~$p$ to
+width~$q$, the cascade for output order~$j$ being the suffix of the
+tuple from~$j$. The sharing of entries is what makes the datum of a
+map fit into a width one more than that of the input and no more than
+that of the output.
+\AgdaRefs{\Agda{BrouwerOrdinals.Rect}{WD}; \texttt{rdOf},
+\texttt{rdOf-All<}, \texttt{rdOf-mono}.}
+
+\begin{lemma}[The calculus]
+\label{lem:calculus}
+Graded maps support application, abstraction, projection and
+iteration. Write
+$y \sqcup x$ for the combination of a datum $y$ of width~$p$ with a
+datum $x$ of width~$n$ into one of width $\max(p,n)$ containing both.
+\begin{enumerate}
+\item\label{item:apply}
+  Application. For maps $F$ from width~$m$ to width $\W(p,q)$ and $G$
+  from width~$m$ to width~$p$ there is a map $F\cdot G$ from width~$m$
+  to width~$q$ with
+  \[
+    \act{\rd{\act F x}}{\act G x} \tle \act{(F\cdot G)}{x}
+  \]
+  for every datum~$x$ of width~$m$: a map applied to the result of
+  another map of the same argument is a map of that argument.
+\item\label{item:curry}
+  Abstraction. For a map $D$ from width $\max(p,n)$ to width~$q$ there
+  is a map $\Lambda D$ from width~$n$ to width $\W(p,q)$ with
+  \[
+    \act{D}{y \sqcup x} \tle \act{\rd{\act{(\Lambda D)}{x}}}{y}
+  \]
+  for all $y$ of width~$p$ and $x$ of width~$n$: a map of a combined
+  argument is read back as a map of one part whose output acts on the
+  other.
+\item\label{item:var}
+  Projection. If $t \tsub u$ then $t \tle \act{\mathrm{zero}}{u}$,
+  where $\mathrm{zero}$ is the zero map, so a variable is bounded by
+  its context.
+\item\label{item:orbit}
+  Iteration. Let $e$ be a datum of width $\W(p,p)$, let $x$ have
+  width~$p$ and let $u$ be a small datum of width~$n$ with $e \tsub u$
+  and $x \tsub u$. There is a map~$R$ from width~$n$ to width~$p$,
+  depending only on those two widths, with
+  \[
+    \rd e^{\,j}(x) \tle \act{R}{u} \qquad \text{for every } j ,
+  \]
+  so the iterates of a square map applied to a datum inside a context
+  are bounded by an action of that context, uniformly in the
+  iteration count.
+\end{enumerate}
+In each case the resulting map is small when the given ones are.
+\AgdaRefs{\Agda{BrouwerOrdinals.RectApply}{rect-ssub}; \texttt{sh},
+\texttt{sh-All<}; \Agda{BrouwerOrdinals.RectCurry}{rect-curry},
+\texttt{curryD}, \texttt{cmb};
+\Agda{BrouwerOrdinals.RectAlgebra}{rect-⊴}, \texttt{zeroRD},
+\texttt{flatRD}; \Agda{BrouwerOrdinals.RectOrbitAct}{rorbit-act},
+\texttt{rorbitD}.}
+\end{lemma}
+
+Part~(\labelcref{item:orbit}) is what makes the bound on the recursor
+a datum rather than an existential tuple, since the bound on the
+iterates is produced once and for all from the context. The remaining
+operations on these maps, the zero map, the join, the widening, the
+flattening of a map into a tuple, the sum of the entries of a map and
+the translation that the recursor applies after a supremum, are
+routine and are collected in the formalization.
+\AgdaRefs{\Agda{BrouwerOrdinals.RectAlgebra}{joinRD}; \texttt{padRD},
+\texttt{addRDc}, \texttt{rect-addνc};
+\Agda{BrouwerOrdinals.RectSum}{sumRD}, \texttt{tsum-rect};
+\Agda{BrouwerOrdinals.RectAdd}{addν}, \texttt{rect-addν};
+\Agda{BrouwerOrdinals.Absorb}{ι⊗ω\^{}}.}
+
+\section{The bound on the majorant}
+\label{sec:bound}
+
+We define the predicate that a datum dominates a majorant and prove
+the closure properties of it that the constants share, give the clause
+for each constant, and conclude.
+
+\subsection{The predicate}
+\label{sec:predicate}
+
+\begin{definition}[The order of a type and the domination predicate]
+\label{def:dom}
+The order of a type and the width of its data are
+\[
+  \ord(\gr) = 0 , \qquad
+  \ord(\sigma\arr\tau) = \max(\ord(\sigma)+1, \ord(\tau)) ,
+\]
+\[
+  \dwd(\sigma) = \ord(\sigma)+1 .
+\]
+A datum $d$ of width $\dwd(\sigma)$ \emph{dominates} a majorant $x$ of
+type~$\sigma$, written $x \dom_{\sigma} d$, by recursion on the type:
+at the ground type $a \dom_{\gr} d$ means $a \le \tsum d$, and
+$F \dom_{\sigma\arr\tau} d$ means that
+$x \dom_{\sigma} e$ implies $F\,x \dom_{\tau} \act{d}{e}$ for every
+small~$e$, where $d$ is read as a graded map from width $\dwd(\sigma)$
+to width $\dwd(\tau)$.
+\AgdaRefs{\Agda{DialogueTrees.Predicate}{ord}; \texttt{wd},
+\texttt{Dom}.}
+\end{definition}
+
+\begin{lemma}[The widths agree]
+\label{lem:widths}
+For all types $\sigma$ and~$\tau$,
+$\dwd(\sigma\arr\tau) = \W(\dwd(\sigma), \dwd(\tau))$.
+\AgdaRefs{The two sides are definitionally equal, which is what lets
+the arrow clause of \Agda{DialogueTrees.Predicate}{Dom} typecheck
+with no coercion, so there is no separate lemma to cite.}
+\end{lemma}
+
+\begin{proof}
+Both sides are $\max(\ord(\sigma)+1, \ord(\tau))+1$, by the clause
+$\max(m+1,n+1) = \max(m,n)+1$.
+\end{proof}
+
+The grading of the types and the grading of the data therefore agree
+exactly, and the clause for an arrow reads the datum as a map and
+applies it with no padding.
+
+\begin{lemma}[Closure properties]
+\label{lem:dom-closure}
+Let $\sigma$ be a type.
+\begin{enumerate}
+\item\label{item:dom-mono}
+  The predicate is monotone: if $x \dom_{\sigma} d$ and
+  $d \tle d'$ then $x \dom_{\sigma} d'$.
+\item\label{item:dom-sup}
+  It is closed under pointwise suprema: if $h\,n \dom_{\sigma} d$ for
+  every~$n$, then $\sup_{\sigma} h \dom_{\sigma} d$.
+\item\label{item:dom-add}
+  It is closed under the translation: if $x \dom_{\sigma} d$ and
+  $\nu \le \nu'$, then
+  $x \bplus_{\sigma} \nu \dom_{\sigma} d'$, where $d'$ adds $\nu'$ at
+  order~$0$ and takes a successor at every order above.
+\item\label{item:dom-eps}
+  At the ground type a small datum gives a bound below~$\eps$: if
+  $a \dom_{\gr} d$ and $d$ is small then $a < \eps$.
+\end{enumerate}
+\AgdaRefs{\Agda{DialogueTrees.Predicate}{Dom-mono};
+\texttt{Dom-sup},
+\texttt{Dom-⊕}, \texttt{Dom-<-ε₀}.}
+\end{lemma}
+
+\begin{proof}
+Each is an induction on the type whose arrow case passes under the
+argument. For (\labelcref{item:dom-add}), a translation alone would
+not do: absorbing a code into a translation under a limit multiplier
+asks for $b \btimes m \bplus d \le (b \bplus d) \btimes m$, which is
+false, so the code is added at order~$0$ and a successor is taken at
+every order above.
+\end{proof}
+
+\subsection{The clauses}
+\label{sec:clauses}
+
+\begin{lemma}[The easy clauses]
+\label{lem:easy-clauses}
+Any datum dominates the majorants of $\Zeroc$, $\Succc$ and~$\Kc$, and
+the datum $(\bS\,\bZ, s)$ dominates the majorant of the oracle for
+every~$s$. Application is the clause for an arrow read forwards.
+\AgdaRefs{\Agda{DialogueTrees.Predicate}{Zero-clause};
+\texttt{Succ-clause}, \texttt{Ω-clause}, \texttt{K-clause},
+\texttt{app-clause}.}
+\end{lemma}
+
+\begin{proof}
+The clause for $\Zeroc$ is the least element property of~$\bZ$, and
+the one for $\Succc$ holds because a datum is below its image under a
+graded map. The oracle adds one query and therefore
+asks that the slot of order~$0$ be positive, which
+$\bS\,\bZ$ supplies. For~$\Kc$, whose majorant discards its second
+argument, the datum of the first argument has to survive two
+applications; the output of the first application still dominates the
+datum it was given, and the output of the second still dominates the
+datum it was read from, and composing the two under monotonicity is
+the whole proof.
+\AgdaRefs{\Agda{BrouwerOrdinals.Rect}{rect-increasing};
+\texttt{rect-arg-≥}, \texttt{rect-rdOf-≥}.}
+\end{proof}
+
+\begin{lemma}[The clause for $\Sc$]
+\label{lem:s-clause}
+At every triple of types there is a small datum that dominates the
+majorant of~$\Sc$, depending only on the three widths.
+\AgdaRefs{\Agda{DialogueTrees.SClause}{dS}; \texttt{dS-All<},
+\texttt{S-clause}.}
+\end{lemma}
+
+\begin{proof}
+The datum is built rather than designed, from
+\cref{lem:calculus}. The proof is the one a reader of
+$\lambda f\,g\,a.\,f\,a\,(g\,a)$ would write: the three data arrive one
+at a time and are combined, in the order in which they are bound, into
+one datum; the body is two applications over that one datum, which is
+\cref{lem:calculus}(\labelcref{item:apply}) twice; and the three
+binders are~\cref{lem:calculus}(\labelcref{item:curry}) twice and the
+flattening of a map into a tuple, which is abstraction with an empty
+context.
+\end{proof}
+
+\begin{lemma}[The clause for the recursor]
+\label{lem:iter-clause}
+At every type there is a small datum that dominates the majorant of
+the recursor.
+\AgdaRefs{\Agda{DialogueTrees.IterClause}{dI}; \texttt{dI-All<},
+\texttt{Iter-clause}.}
+\end{lemma}
+
+\begin{proof}
+As in~\cref{lem:s-clause}. The bound on the iterates is supplied by
+iteration, \cref{lem:calculus}(\labelcref{item:orbit}), and the
+translation by the count is absorbed by the operation of
+\cref{lem:dom-closure}(\labelcref{item:dom-add}), the code added
+belonging to the context as well.
+\end{proof}
+
+\subsection{The theorem}
+\label{sec:theorem}
+
+\begin{theorem}
+\label{thm:fundamental}
+Every closed term $t$ of $\TmO\sigma$ has a small datum of width
+$\dwd(\sigma)$ dominating its majorant.
+\AgdaRefs{\Agda{DialogueTrees.Fundamental}{fundamental}.}
+\end{theorem}
+
+\begin{proof}
+By induction on the term, the constants by~\cref{lem:easy-clauses},
+\cref{lem:s-clause} and~\cref{lem:iter-clause}, and application by the
+clause for an arrow, whose datum is the image of the datum of the
+argument under the datum of the function read as a graded map.
+\end{proof}
+
+\begin{corollary}
+\label{cor:mu-below}
+Every closed term $t$ of $\TmO\gr$ has $\Mj(t) < \eps$.
+\AgdaRefs{\Agda{DialogueTrees.Fundamental}{μᵀ-<-ε₀}.}
+\end{corollary}
+
+\begin{proof}
+At the ground type the datum is a single code, so
+\cref{lem:dom-closure}(\labelcref{item:dom-eps}) applies.
+\end{proof}
+
+\begin{theorem}[The upper bound]
+\label{thm:main}
+For every closed term $t : (\gr\arr\gr)\arr\gr$ of system T,
+\[
+  \height(\dtree(t)) < \eps .
+\]
+\AgdaRefs{\Agda{DialogueTrees.Fundamental}{dialogue-tree-height-<-ε₀};
+\Agda{DialogueTrees.Main}{restated}.}
+\end{theorem}
+
+\begin{proof}
+\Cref{cor:mu-below} discharges the hypothesis of
+\cref{thm:reduction}.
+\end{proof}
+
+\section{Sharpness}
+\label{sec:sharp}
+
+We exhibit terms of small height, read a dialogue tree off every
+Brouwer code, and construct for each~$n$ a term attaining the
+approximant $\tower n$, from which $\eps$ is the least bound.
+
+\subsection{Terms of small height}
+\label{sec:small}
+
+\begin{examples}
+\label{ex:small}
+The three terms
+$\lambda f.\,0$, $\lambda f.\,f\,0$ and
+$\lambda f.\,\iterop\,f\,(f\,0)\,(f\,0)$ have dialogue trees
+$\eta\,0$, $\beta\,\eta\,0$ and
+$\beta(j \mapsto \iterop\,\mathrm{generic}\,(\beta\,\eta\,0)\,j)\,0$,
+each by computation. The first has height~$\bZ$, and the second has
+height~$\bS\,\bZ$ in the sense that both bounds hold, the code
+$\bL(n \mapsto \bS\,\bZ)$ being the one the definition returns.
+\AgdaRefs{\Agda{DialogueTrees.Examples}{leaf-term};
+\texttt{query-term}, \texttt{iterated-term}, \texttt{leaf-tree},
+\texttt{query-tree}, \texttt{iterated-tree}, \texttt{leaf-height},
+\texttt{query-height-≤}, \texttt{query-height-≥}.}
+\end{examples}
+
+\begin{proposition}
+\label{prop:omega-attained}
+The third term of~\cref{ex:small} has height~$\omega$, which is
+$\tower 0$.
+\AgdaRefs{\Agda{DialogueTrees.Examples}{iterated-height-≥};
+\texttt{iterated-height-≤}.}
+\end{proposition}
+
+\begin{proof}
+By the computation of the tree in~\cref{ex:small}, the height is the
+supremum over~$j$ of one more than the height of the $j$-th iterate of
+the generic oracle at $\beta\,\eta\,0$. If the numeral $\num k$ is
+below the height of a tree, then $\num{k+1}$ is below the height of
+its image under the generic oracle, by induction on the tree, the
+numeral being carried through a single branch at each step as
+in~\cref{rem:one-branch}. So $\num j$ is below the height of the
+$j$-th iterate, which gives the lower bound. In the other direction
+the $j$-th iterate has height at most $\num 1 \bplus \num j$, which
+is~$\num{j+1}$, so every branch is below~$\omega$.
+\AgdaRefs{\Agda{DialogueTrees.Examples}{ι-generic};
+\texttt{ι-iter},
+\texttt{iter-generic-≤}.}
+\end{proof}
+
+\subsection{Trees of arbitrary height}
+\label{sec:trees}
+
+\begin{proposition}
+\label{prop:tree-of}
+Every Brouwer code is below the height of a dialogue tree read off the
+code. In particular $\eps$ is below the height of such a tree, and
+that tree is the dialogue tree of no term of system T.
+\AgdaRefs{\Agda{DialogueTrees.Examples}{tree-of};
+\texttt{code-≤-height}, \texttt{approximant}, \texttt{epsilon₀},
+\texttt{no-term-of-height-ε₀}.}
+\end{proposition}
+
+\begin{proof}
+A successor becomes a query whose subtrees are all the tree of the
+predecessor, and a limit becomes a query whose $n$-th subtree is the
+tree of the $n$-th member, and $a \le \height(\mathrm{tree}(a))$
+follows by induction on~$a$. Were a term~$t$ to have the tree of~$\eps$,
+then $\eps \le \height(\dtree(t))$, so that
+$\bS\,\eps \le \bS\,\height(\dtree(t)) \le \eps$ by monotonicity of
+the successor and \cref{thm:main}, and $\bS\,\eps \le \eps$ is refuted
+by induction on the code.
+\AgdaRefs{\Agda{DialogueTrees.Examples}{S-irrefl}.}
+\end{proof}
+
+The bound of~\cref{thm:main} is thus a statement about the terms, the
+trees themselves reaching every height.
+
+\subsection{Terms attaining each approximant}
+\label{sec:church}
+
+The terms of this section are Church encodings of ordinals, following
+Coquand, Hancock and Setzer~\cite{CoquandHancockSetzer1997}; the same
+device is applied to dialogue trees, which are Church encoded within
+system T, in~\cite{EscardoPaivaRahliTosun2025}.
+
+\begin{definition}[Church ordinals in system T]
+\label{def:church}
+A Church ordinal over a type~$\sigma$ folds itself over an
+interpretation of zero, successor and limit, so it inhabits
+\[
+  \mathcal{O}\sigma = \sigma \arr (\sigma\arr\sigma)
+    \arr ((\gr\arr\sigma)\arr\sigma) \arr \sigma .
+\]
+Zero, successor, limit and addition keep the parameter fixed, while
+multiplication and exponentiation consume an encoding one level up,
+exponentiation having the type
+$\mathcal{O}(\mathcal{O}\sigma) \arr \mathcal{O}(\mathcal{O}\sigma)
+ \arr \mathcal{O}\sigma$. The approximant $\tower n$ is therefore
+written at its own type, with $n$ nestings of~$\mathcal{O}$ below the
+level at which it is used.
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{𝓞}; \texttt{zerᵀ},
+\texttt{sucᵀ}, \texttt{limᵀ}, \texttt{addᵀ}, \texttt{mulᵀ},
+\texttt{expᵀ}, \texttt{towerᵀ}; \Agda{Ordinals.ChurchEncoding}{O}.}
+\end{definition}
+
+\begin{remark}
+\label{rem:no-eps}
+Every approximant of~$\eps$ is written in system T in this way, while
+$\eps$ itself calls for a uniform type and stays out of reach, in
+accordance with~\cref{thm:main}. Dependent types and a universe give
+the uniform typing and hence~$\eps$, which is how
+\cite{CoquandHancockSetzer1997} obtains it.
+\end{remark}
+
+\begin{definition}[The terms]
+\label{def:tower-term}
+The term $t_{n} : (\gr\arr\gr)\arr\gr$ runs the encoding of $\tower n$
+at the ground type against the oracle~$\alpha$ through the algebra
+that interprets zero as~$0$, the successor of~$x$ as
+$\iterop\,(\lambda y.\,y)\,x\,(\alpha\,0)$, and the limit of a
+sequence~$\varphi$ as $\varphi\,(\alpha\,0)$.
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{tower-term}; \texttt{abs},
+\texttt{tm}.}
+\end{definition}
+
+In the standard interpretation the successor of the algebra is the
+identity, since iterating the identity returns~$x$ whatever the count.
+What the dialogue interpretation makes of it is another matter,
+because the recursor reads its count through a Kleisli extension, so
+the tree of the count is placed above the tree of~$x$. The successor
+therefore places one query above the tree built so far: the oracle is
+asked at~$0$ and every branch of the answer returns~$x$, so the
+height of the result exceeds the height of~$x$ by one. An
+interpretation of the successor that asks the oracle below, as the
+term of~\cref{prop:omega-attained} does, raises every leaf by one and
+leaves the height of an infinite tree where it was, which is why the
+query goes on top. The limit hands its query to the sequence, and the
+sequence branches over the answer, with the tree of the $j$-th member
+on the $j$-th branch.
+
+\begin{theorem}[The lower bound]
+\label{thm:lower}
+For every~$n$,
+\[
+  \tower n \le \height(\dtree(t_{n})) .
+\]
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{tower-attained};
+\Agda{DialogueTrees.Main}{attained}.}
+\end{theorem}
+
+\begin{proof}
+By parametricity. The relation $\mathrm{Rel}(\sigma, R)$ states that a
+Church ordinal sends every algebra realising the three code
+constructors to a realisation of the fold of a Brouwer code, where
+realisation at the parameter type is an arbitrary relation~$R$ and the
+limit of the algebra is fed Kleisli extensions alone, which is what
+the terms produce and what turns one query into a branch per index.
+Zero, successor, limit, addition, multiplication and exponentiation
+preserve the relation, moving the code along the matching operation on
+codes, and each proof is a direct unfolding, the dialogue semantics of
+a compiled closed term computing. Instantiating the relation at the
+ground type with ``the code is below the height of the tree'', the
+three conditions of the algebra are checked directly. The code side
+lands on a fold of~$\tower n$, which is $\tower n$ itself, the folds
+used for the product and the power grouping their summands in the
+other order and agreeing with the operations
+of~\cref{def:arithmetic} by associativity of addition.
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{Rel}; \texttt{fold},
+\texttt{mulᶜ}, \texttt{expᶜ}, \texttt{towerᶜ-tower},
+\texttt{expᶜ-ω\^{}}, \texttt{towerᵀ-Rel}.}
+\end{proof}
+
+\begin{corollary}
+\label{cor:least}
+The heights of the dialogue trees of closed terms of type
+$(\gr\arr\gr)\arr\gr$ are cofinal in~$\eps$, and $\eps$ is the least
+code bounding all of them.
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{heights-cofinal};
+\texttt{ε₀-least}, \texttt{tower-term-below-ε₀};
+\Agda{DialogueTrees.Main}{cofinal}, \texttt{least}.}
+\end{corollary}
+
+\begin{proof}
+A code below~$\eps$ is below some $\tower n$, which
+\cref{thm:lower} attains. If $b$ bounds the height of every tree then
+$\tower n \le b$ for every~$n$, so $\eps \le b$ by the limiting
+property of the order.
+\end{proof}
+
+\section{Discussion}
+\label{sec:discussion}
+
+We place the bound and the method in the literature, and compare the
+proof with that of Xiao and Sun.
+
+\subsection{The ordinal and the method}
+\label{sec:method}
+
+The bound $\eps$ is the proof-theoretic ordinal of arithmetic, by
+Gentzen~\cite{Gentzen1936}; a modern account is
+Pohlers~\cite{Pohlers2009}. The hereditary assignment of ordinals to
+terms, type by type, is the method of Howard~\cite{Howard1970}, who
+bounds the values a term computes and the length of its reductions.
+The dialogue-tree height is a different measure, and
+\cref{thm:main} is not a corollary of that assignment, but the shape
+of the induction is the same.
+
+The present proof has two features independent of the result. The
+first is that the ordinals are syntactic. Brouwer codes
+with the order of~\cref{def:codes} make the successor monotone by
+construction, which is what allows every lemma to be proved without
+excluded middle; a treatment through the ordinals of the univalent
+library needs it, and the development records what fails. The second
+is the grading. The predicate of~\cref{def:dom} is indexed by the
+order of a type, and~\cref{lem:widths} says that this grading is the
+same as the grading of the data, so that the clause for an arrow
+applies a graded map with no adjustment. Once that is in place the two
+hard clauses are written in the calculus of~\cref{sec:graded} rather
+than by hand.
+
+\subsection{The proof of Xiao and Sun}
+\label{sec:xiaosun}
+
+The bound of \cref{thm:main} is due to Xiao and
+Sun~\cite{XiaoSun2026}, and the proof given here is an alternative
+one. Their argument runs through the syntax. A recursor is translated
+into a closed infinitary template, the redexes are removed by a
+sequence of passes indexed by ordinary type level, the translation and
+every pass preserve the dialogue denotation, and an auxiliary rank
+with an additive substitution bound is tracked across the passes. The
+outcome is sharper than \cref{thm:main} in the respect that matters
+for a given term: they compute from the term a natural
+number~$K(t) \ge 2$ with
+\[
+  \height(\dtree(t)) < \tower{K(t)} < \eps ,
+\]
+so each term is bounded by a named level of the tower rather than
+by~$\eps$. The proof here names no such level.
+
+The two proofs differ in their ordinals. Theirs are the classical
+ones, and the ordinal part of their formalization assumes excluded
+middle for the propositions of the second universe, together with
+univalence, propositional truncation and set replacement, while their
+syntactic part assumes nothing. We have been unable to locate their
+Agda formalization for comparison with ours. The present development
+replaces the ordinals by Brouwer codes with the syntactic order
+throughout, so that no part of it is classical and function
+extensionality is the only assumption. Since the syntactic order is
+sound for the standard interpretation of the codes, \cref{thm:main}
+gives the classical statement as well.
+
+They write that they do not claim their bound sharp, and leave open
+whether the heights are cofinal in~$\eps$. \Cref{cor:least} answers
+that question: they are, so $\eps$ is the least bound, and no tower
+level bounds every term.
+
+\begin{question}
+\label{q:exact}
+The exact height of a term as a function of its syntax is determined
+by neither proof. Nor is the least~$n$ with
+$\height(\dtree(t)) < \tower n$ for a given term~$t$, for which the
+number $K(t)$ of~\cite{XiaoSun2026} is an upper bound.
+\end{question}
+
+\appendix
+% amsart keeps the section counter for appendices, so cleveref has to
+% be told that a section label after \appendix names an appendix.
+\crefalias{section}{appendix}
+\crefalias{subsection}{appendix}
+
+\section{The formalization}
+\label{sec:appendix}
+
+The formalization was developed first, by LLM's, and the paper was
+then unformalized from it, again by LLM's, each statement of the paper
+being written from the Agda statement it points at. We describe the
+files of the development, say where the main theorems are and what
+has to be read by hand, describe the pointers that tie the paper to
+the code, and record how the paper was verified against it.
+
+\subsection{The files}
+\label{sec:files}
+
+The development is 28 Agda modules under the prefix
+\AgdaModule{DialogueTreesHeight}, some three thousand lines of code, in
+two directories, available at
+\url{https://github.com/martinescardo/DialogueTreesHeight}. Every
+module is checked with \texttt{--safe} and \texttt{--without-K}, with
+no postulates and no holes, and takes
+function extensionality as a parameter named \texttt{fe}. The library
+it builds on is \texttt{TypeTopology}: the Brouwer codes come from
+\AgdaModule{Ordinals.BrouwerCodes}, and the dialogue trees, the
+combinatory system T and its dialogue interpretation from
+\AgdaModule{EffectfulForcing.MFPSAndVariations}.
+
+The directory \AgdaModule{BrouwerOrdinals}, 17 modules, holds the
+ordinal arithmetic and the graded maps, and knows nothing of system T
+or of dialogue trees. The modules \AgdaModule{Order},
+\AgdaModule{Multiplication}, \AgdaModule{Epsilon0} and
+\AgdaModule{MultClosure} are \cref{sec:codes}: the order, the
+arithmetic, the tower and the closure properties of~$\eps$. The other
+thirteen are \cref{sec:graded}: \AgdaModule{MoveTuple} for the data,
+\AgdaModule{Cascade} and \AgdaModule{CascadeLevel} for the cascades,
+\AgdaModule{Rect} for the graded maps and the reading of a tuple as
+one, \AgdaModule{RectApply}, \AgdaModule{RectCurry},
+\AgdaModule{RectAlgebra} and \AgdaModule{RectOrbitAct} for the four
+facts of \cref{lem:calculus}, and \AgdaModule{Move},
+\AgdaModule{MultAffine}, \AgdaModule{Absorb}, \AgdaModule{RectAdd} and
+\AgdaModule{RectSum} for the arithmetic those rest on.
+
+The directory \AgdaModule{DialogueTrees}, 10 modules, is the rest
+of the paper. The module \AgdaModule{Constructive} defines the height,
+\cref{def:height}; \AgdaModule{Majorant} and \AgdaModule{MajorantAll}
+are \cref{sec:majorant}; \AgdaModule{Predicate}, \AgdaModule{SClause},
+\AgdaModule{IterClause} and \AgdaModule{Fundamental} are
+\cref{sec:bound}; \AgdaModule{Examples} and \AgdaModule{Sharpness} are
+\cref{sec:sharp}; and \AgdaModule{Main} restates the main theorems.
+The module \AgdaModule{index} imports all of them in dependency order
+and ends with an outline of the proof and the references.
+
+\subsection{The main theorems}
+\label{sec:main-theorems}
+
+The results of the paper are the following four, in two modules of
+the directory \AgdaModule{DialogueTrees}, and all four are restated
+independently in its module \AgdaModule{Main}.
+\begin{center}
+\begin{tabular}{lll}
+  \Cref{thm:main}, upper bound &
+    \AgdaModule{Fundamental} & \texttt{dialogue-tree-height-<-ε₀} \\
+  \quad restated &
+    \AgdaModule{Main} & \texttt{restated} \\
+  \Cref{thm:lower}, lower bound &
+    \AgdaModule{Sharpness} & \texttt{tower-attained} \\
+  \quad restated &
+    \AgdaModule{Main} & \texttt{attained} \\
+  \Cref{cor:least}, cofinality &
+    \AgdaModule{Sharpness} & \texttt{heights-cofinal} \\
+  \quad restated &
+    \AgdaModule{Main} & \texttt{cofinal} \\
+  \Cref{cor:least}, least bound &
+    \AgdaModule{Sharpness} & \texttt{ε₀-least} \\
+  \quad restated &
+    \AgdaModule{Main} & \texttt{least}
+\end{tabular}
+\end{center}
+Agda checks that each is inhabited. What it does not check is that
+the statements mean what the paper says they mean, so these are what
+has to be read by hand: the four types above, the type
+\texttt{T ((ι ⇒ ι) ⇒ ι)} they quantify over, and the definitions they
+are built from, which are the order and the arithmetic of
+\cref{def:codes,def:arithmetic} in \AgdaModule{Order},
+\AgdaModule{Multiplication} and \AgdaModule{Epsilon0}, the height of
+\cref{def:height} in \AgdaModule{Constructive}, and
+\texttt{dialogue-tree} in \texttt{TypeTopology}. Together they come to
+some twenty lines. The module \AgdaModule{Main} guards the statements
+against drift. It restates the upper bound with $<$ unfolded and
+checks that the same proof term inhabits the restatement, checks that
+the order is not degenerate at the bottom and that the type quantified
+over is inhabited, and names the types of \texttt{dialogue-tree} and
+\texttt{height}. It does the same for the three sharpness results,
+with $<$ unfolded to a successor on the left and $\eps$ to the limit of
+the tower, and checks by \texttt{refl} that the tower is the sequence
+$\omega$, $\omega^{\omega}$, $\omega^{\omega^{\omega}}, \ldots$ and
+that $\eps$ is its limit.
+
+Two claims in the paper that something is false, in
+\cref{rem:last-grade} and in the proof of
+\cref{lem:dom-closure}(\labelcref{item:dom-add}), are motivation and
+are not formalized, and the account of the proof of Xiao and Sun
+in~\cref{sec:xiaosun} comes from reading their paper.
+
+\subsection{The pointers}
+\label{sec:deformalizing}
+
+Every numbered item carries a pointer, set in blue, to the Agda that
+proves it. A pointer names a module and a definition in it, then
+further names of the same module, and a name must be defined in the
+module it is cited under rather than re-exported by it. A script
+resolves every pointer against the sources and reports, for this
+paper, 52 notes carrying 199 names, all resolving. Four numbered items
+carry no pointer, three remarks and a question, which make no formal
+claim, and \cref{lem:widths} carries a note in place of a lemma, its
+two sides being definitionally equal. The paper was written statement
+first, each Agda statement being read before the paper's was written,
+and the proofs describe the route the Agda takes.
+
+\subsection{The A/B/C verification}
+\label{sec:abc}
+
+The paper was then verified against the formalization in three
+passes, the independence of the first two being the point of the
+arrangement.
+
+\begin{enumerate}
+\item[A.]
+  Read the paper alone, with the formalization closed, as a reader
+  with no access to it: whether the mathematics is correct, whether
+  each statement is self-contained, whether each proof proves what
+  its statement says in steps that can be followed, and whether the
+  prose says what it means. The findings go to a numbered list.
+\item[B.]
+  Audit the same text against the formalization, without opening the
+  list from pass~A: each statement against the Agda it points at,
+  each proof against the route the Agda takes, and each pointer
+  against what exists and in which module.
+\item[C.]
+  Read the two lists together, merge the findings that coincide, drop
+  a finding of~A that B refutes, and rank what survives with the
+  errors first, the faithfulness gaps next and the language last.
+  Each finding is then settled before the next is raised.
+\end{enumerate}
+
+On the first run pass~A produced sixteen findings and pass~B eleven, one
+pair merged, and twenty-five survived into pass~C, of which five were
+errors. They are worth naming as a sample of what each pass catches.
+Pass~A found an operation used in the statement of a lemma and
+nowhere defined, a constant used in four places and nowhere defined,
+and a definition that reads as trivially the identity unless one is
+told why it is not. Pass~B found a proof attributing two of its cases
+to a lemma that neither case uses, a second proof describing a route
+the Agda does not take, and a theorem stated in a shape weaker than
+the one the pointer proves.
+
+The procedure was run more than once, and with more than one model,
+the later runs finding no error of mathematics and a small number of
+faithfulness gaps and points of language, most of them in text the
+first run had added. A limitation of every run should be recorded.
+The value of pass~A lies in the reader's ignorance of the
+formalization, and in each run the model carrying out that pass had
+the formalization at hand, so that it could read the paper as it was
+meant rather than as it stands. An independent pass~A is the single
+change that would most strengthen the procedure.
+
+\begin{thebibliography}{9}
+
+\bibitem{CoquandHancockSetzer1997}
+Thierry Coquand, Peter Hancock and Anton Setzer.
+\newblock Ordinals in type theory.
+\newblock Invited talk, Computer Science Logic (CSL), 1997.
+\newblock \url{https://www.cse.chalmers.se/~coquand/ordinal.pdf}
+
+\bibitem{Escardo2013}
+Mart\'in H\"otzel Escard\'o.
+\newblock Continuity of G\"odel's system T definable functionals via
+  effectful forcing.
+\newblock {\em Electronic Notes in Theoretical Computer Science},
+  298:119--141, 2013. MFPS XXIX.
+\newblock \url{https://doi.org/10.1016/j.entcs.2013.09.010}
+
+\bibitem{EscardoPaivaRahliTosun2025}
+Mart\'in H\"otzel Escard\'o, Bruno da Rocha Paiva, Vincent Rahli and
+  Ayberk Tosun.
+\newblock Internal effectful forcing in system T.
+\newblock In {\em 10th International Conference on Formal Structures
+  for Computation and Deduction (FSCD 2025)}, volume 337 of {\em
+  LIPIcs}, pages 19:1--19:17, 2025.
+\newblock \url{https://doi.org/10.4230/LIPIcs.FSCD.2025.19}
+
+\bibitem{Gentzen1936}
+Gerhard Gentzen.
+\newblock Die Widerspruchsfreiheit der reinen Zahlentheorie.
+\newblock {\em Mathematische Annalen}, 112:493--565, 1936.
+\newblock English translation in M.~E. Szabo, editor, {\em The
+  Collected Papers of Gerhard Gentzen}, North-Holland, 1969.
+
+\bibitem{Howard1970}
+William A. Howard.
+\newblock Assignment of ordinals to terms for primitive recursive
+  functionals of finite type.
+\newblock In A.~Kino, J.~Myhill and R.~E. Vesley, editors, {\em
+  Intuitionism and Proof Theory (Buffalo 1968)}, pages 443--458.
+  North-Holland, 1970.
+
+\bibitem{Pohlers2009}
+Wolfram Pohlers.
+\newblock {\em Proof Theory: The First Step into Impredicativity}.
+\newblock Universitext. Springer, 2009.
+
+\bibitem{XiaoSun2026}
+MingKun Xiao and YiXuan Sun.
+\newblock An explicit ordinal bound for system T dialogue trees.
+\newblock Preprint, arXiv:2609.20369, 2026.
+\newblock \url{https://arxiv.org/abs/2609.20369}
+
+\end{thebibliography}
+
+\end{document}

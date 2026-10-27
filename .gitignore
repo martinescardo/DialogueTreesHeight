@@ -1,0 +1,9 @@
+_build/
+*.agdai
+*~
+*.aux
+*.log
+*.out
+*.claims
+*.pdf
+auto/
