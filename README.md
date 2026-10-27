@@ -28,7 +28,8 @@ LLM's under Martín Escardó's direction. He has verified the correctness
 of the formulation of the main theorems in the Agda code and takes
 responsibility for this. However, he takes no responsibility for the
 correctness of the paper, but see the precautions taken in its
-Appendix A. The paper would greatly benefit from further human care.
+[Appendix A][pdf]. The paper would greatly benefit from further human
+care.
 
 ## Related work
 
@@ -42,23 +43,26 @@ settles the sharpness question that they leave open.
 
 ## The structure of the repository
 
-* `source/DialogueTreesHeight/index.lagda` imports every module in
-  dependency order and ends with an outline of the proof and the
-  references.
-* `source/DialogueTreesHeight/BrouwerOrdinals`, 17 modules, holds the
-  ordinal arithmetic of Brouwer codes and the graded maps used to bound
-  the majorants, and doesn't rely on system T or dialogue trees.
-* `source/DialogueTreesHeight/DialogueTrees`, 10 modules, defines the
-  height of a dialogue tree, assigns a majorant to every term, proves
-  the bound, and constructs the terms that attain the approximants of
-  `ε₀`.
-* `latex/dialogue-tree-height.tex` is the paper. Every result in it
-  carries a pointer to the Agda definition that proves it.
+* [`source/DialogueTreesHeight/index.lagda`](https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/index.lagda)
+  imports every module in dependency order and ends with an outline of
+  the proof and the references.
+* [`source/DialogueTreesHeight/BrouwerOrdinals`](https://github.com/martinescardo/DialogueTreesHeight/tree/master/source/DialogueTreesHeight/BrouwerOrdinals),
+  17 modules, holds the ordinal arithmetic of Brouwer codes and the
+  graded maps used to bound the majorants, and doesn't rely on system T
+  or dialogue trees.
+* [`source/DialogueTreesHeight/DialogueTrees`](https://github.com/martinescardo/DialogueTreesHeight/tree/master/source/DialogueTreesHeight/DialogueTrees),
+  10 modules, defines the height of a dialogue tree, assigns a majorant
+  to every term, proves the bound, and constructs the terms that attain
+  the approximants of `ε₀`.
+* [`latex/dialogue-tree-height.tex`](https://github.com/martinescardo/DialogueTreesHeight/blob/master/latex/dialogue-tree-height.tex)
+  is the paper. Every result in it carries a pointer to the Agda
+  definition that proves it.
 
 The dialogue trees, the combinatory system T and its dialogue
-interpretation come from the module `EffectfulForcing.MFPSAndVariations`
-of [TypeTopology](https://github.com/martinescardo/TypeTopology), and
-the Brouwer codes from its module `Ordinals.BrouwerCodes`.
+interpretation come from the module
+[`EffectfulForcing.MFPSAndVariations`][MFPSAndVariations] of
+[TypeTopology](https://github.com/martinescardo/TypeTopology), and the
+Brouwer codes from its module [`Ordinals.BrouwerCodes`][BrouwerCodes].
 
 ## How the formalization was pruned
 
@@ -70,23 +74,23 @@ accord, following the literate style of TypeTopology, without being
 asked to. Besides the proof, the modules hold the routes that were tried
 and abandoned, and a classical treatment over ordinals.
 
-The pruning started from the module `Fundamental`, which proves the
-upper bound, and kept only the modules it imports, directly or
-indirectly. That left 34 modules, with 8,167 lines, of which 4,325 are
-code, and discarded the other 84 outright. Within those 34 modules, the
-definitions that the proof doesn't use were then removed, and after them
-the 205 imported names that were no longer used, together with 41 whole
-import statements. The development was typechecked again after each
-step. Modules that this emptied were deleted, the 71 paragraphs of prose
-that introduced emptied code blocks were cut, and modules whose names no
-longer fitted their contents were renamed or merged. The remaining prose
-was then rewritten throughout. This leaves 24 modules, with 4,668 lines,
-of which 2,555 are code.
+The pruning started from the module [`Fundamental`][Fundamental], which
+proves the upper bound, and kept only the modules it imports, directly
+or indirectly. That left 34 modules, with 8,167 lines, of which 4,325
+are code, and discarded the other 84 outright. Within those 34 modules,
+the definitions that the proof doesn't use were then removed, and after
+them the 205 imported names that were no longer used, together with 41
+whole import statements. The development was typechecked again after
+each step. Modules that this emptied were deleted, the 71 paragraphs of
+prose that introduced emptied code blocks were cut, and modules whose
+names no longer fitted their contents were renamed or merged. The
+remaining prose was then rewritten throughout. This leaves 24 modules,
+with 4,668 lines, of which 2,555 are code.
 
-The sharpness results were proved afterwards, in the modules `Examples`
-and `Sharpness`. Together with `Main` and the index, they bring the
-development to the 28 modules here, with 5,643 lines, of which 2,985 are
-code.
+The sharpness results were proved afterwards, in the modules
+[`Examples`][Examples] and [`Sharpness`][Sharpness]. Together with
+[`Main`][Main] and the index, they bring the development to the 28
+modules here, with 5,643 lines, of which 2,985 are code.
 
 | stage | modules | lines | lines of code | lines of prose |
 | --- | ---: | ---: | ---: | ---: |
@@ -97,27 +101,29 @@ code.
 
 ## The main theorems
 
-The four results are proved in two modules of `DialogueTrees` and
-restated independently in its module `Main`.
+The four results are proved in two modules of
+[`DialogueTrees`][DialogueTrees] and restated independently in its
+module [`Main`][Main].
 
 | result | proved in | restated in |
 | --- | --- | --- |
-| upper bound | `Fundamental.dialogue-tree-height-<-ε₀` | `Main.restated` |
-| lower bound | `Sharpness.tower-attained` | `Main.attained` |
-| cofinality | `Sharpness.heights-cofinal` | `Main.cofinal` |
-| least bound | `Sharpness.ε₀-least` | `Main.least` |
+| upper bound | [`Fundamental.dialogue-tree-height-<-ε₀`][Fundamental] | [`Main.restated`][Main] |
+| lower bound | [`Sharpness.tower-attained`][Sharpness] | [`Main.attained`][Main] |
+| cofinality | [`Sharpness.heights-cofinal`][Sharpness] | [`Main.cofinal`][Main] |
+| least bound | [`Sharpness.ε₀-least`][Sharpness] | [`Main.least`][Main] |
 
 To trust the results, it's enough to read their statements, which are
 the four types in `Main`, together with the type `T ((ι ⇒ ι) ⇒ ι)` they
 quantify over and the definitions they're built from. These are the
-order and the arithmetic of Brouwer codes in the modules `Order`,
-`Multiplication` and `Epsilon0`, the height of a dialogue tree in
-`Constructive`, and `dialogue-tree` in TypeTopology, some twenty lines
-in all. The module `Main` writes the statements out with the
-abbreviations unfolded, checks that the type quantified over is
-inhabited and that the order isn't degenerate, and checks by `refl` that
-the approximants of `ε₀` are `ω`, `ω^ω`, `ω^ω^ω`, and so on, with `ε₀`
-their limit.
+order and the arithmetic of Brouwer codes in the modules
+[`Order`][Order], [`Multiplication`][Multiplication] and
+[`Epsilon0`][Epsilon0], the height of a dialogue tree in
+[`Constructive`][Constructive], and [`dialogue-tree`][dialogue-tree] in
+TypeTopology, some twenty lines in all. The module `Main` writes the
+statements out with the abbreviations unfolded, checks that the type
+quantified over is inhabited and that the order isn't degenerate, and
+checks by `refl` that the approximants of `ε₀` are `ω`, `ω^ω`, `ω^ω^ω`,
+and so on, with `ε₀` their limit.
 
 ## Typechecking
 
@@ -130,13 +136,32 @@ With TypeTopology registered as a library in `~/.agda/libraries`, run
     agda --safe DialogueTreesHeight/index.lagda
 
 The html and the pdf are produced by the workflow in
-`.github/workflows/pages.yml`, which typechecks the development against
-the same commit of TypeTopology, renders it with the script
-`agda-html.py` of TypeTopology, and compiles the paper.
+[`.github/workflows/pages.yml`][workflow], which typechecks the
+development against the same commit of TypeTopology, renders it with the
+script [`agda-html.py`][agda-html] of TypeTopology, and compiles the
+paper.
 
 ## License
 
 This work is licensed under the
 [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/),
-whose full text is in the file `LICENSE`. It may be used, shared and
-adapted for any purpose, provided that appropriate credit is given.
+whose full text is in the file [`LICENSE`][LICENSE]. It may be used,
+shared and adapted for any purpose, provided that appropriate credit is
+given.
+
+[pdf]: https://martinescardo.github.io/DialogueTreesHeight/dialogue-tree-height.pdf
+[MFPSAndVariations]: https://github.com/martinescardo/TypeTopology/tree/ee4e4c86da34ac609389285baa01e2eab6062b37/source/EffectfulForcing/MFPSAndVariations
+[BrouwerCodes]: https://github.com/martinescardo/TypeTopology/blob/ee4e4c86da34ac609389285baa01e2eab6062b37/source/Ordinals/BrouwerCodes.lagda
+[dialogue-tree]: https://github.com/martinescardo/TypeTopology/blob/ee4e4c86da34ac609389285baa01e2eab6062b37/source/EffectfulForcing/MFPSAndVariations/MFPS-XXIX.lagda
+[agda-html]: https://github.com/martinescardo/TypeTopology/blob/43157f4b32b1fc272739596f2116878fbfca6760/admin-utilities/agda-html.py
+[DialogueTrees]: https://github.com/martinescardo/DialogueTreesHeight/tree/master/source/DialogueTreesHeight/DialogueTrees
+[Fundamental]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Fundamental.lagda
+[Examples]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Examples.lagda
+[Sharpness]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Sharpness.lagda
+[Main]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Main.lagda
+[Constructive]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Constructive.lagda
+[Order]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/BrouwerOrdinals/Order.lagda
+[Multiplication]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/BrouwerOrdinals/Multiplication.lagda
+[Epsilon0]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/BrouwerOrdinals/Epsilon0.lagda
+[workflow]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/.github/workflows/pages.yml
+[LICENSE]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/LICENSE

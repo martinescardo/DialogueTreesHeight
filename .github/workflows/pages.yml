@@ -21,13 +21,14 @@ concurrency:
 env:
   TYPETOPOLOGY_COMMIT: ee4e4c86da34ac609389285baa01e2eab6062b37
   HTML_SCRIPT_COMMIT: 43157f4b32b1fc272739596f2116878fbfca6760
+  AGDA_IMAGE: ghcr.io/ayberkt/docker-agda-minimal@sha256:afeaf23ddce06c94132d4ceea5b169298b1d878ed4c6d52d400d58dcea1e3065
 
 jobs:
   html:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/ayberkt/docker-agda-minimal@sha256:afeaf23ddce06c94132d4ceea5b169298b1d878ed4c6d52d400d58dcea1e3065
     steps:
+    # The clones run on the runner, because the Agda image has no CA
+    # certificates. Only Agda and the html script run in the image.
     - name: Clone this repository
       uses: actions/checkout@v4
 
@@ -55,30 +56,26 @@ jobs:
         path: TypeTopology/_build
         key: typetopology-agdai-${{ env.TYPETOPOLOGY_COMMIT }}
 
-    - name: Register TypeTopology with Agda
+    - name: Typecheck, and render and check the html, in the Agda image
       run: |
-        mkdir -p "$RUNNER_TEMP/agda"
-        echo "$GITHUB_WORKSPACE/TypeTopology/typetopology.agda-lib" > "$RUNNER_TEMP/agda/libraries"
-        echo "AGDA_DIR=$RUNNER_TEMP/agda" >> "$GITHUB_ENV"
-
-    - name: Typecheck
-      run: |
-        agda --version
-        cd source
-        agda --safe DialogueTreesHeight/index.lagda +RTS -A64M -RTS
-
-    - name: Render and check the html
-      run: |
-        python3 TypeTopologyTools/admin-utilities/agda-html.py \
-          --typetopology . \
-          --entry DialogueTreesHeight/index.lagda \
-          --css TypeTopologyTools/assets/Agda.css \
-          --out html
-        python3 TypeTopologyTools/admin-utilities/agda-html.py \
-          --typetopology . \
-          --entry DialogueTreesHeight/index.lagda \
-          --html html --out html --check
-        printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=DialogueTreesHeight.index.html"><a href="DialogueTreesHeight.index.html">DialogueTreesHeight.index</a>\n' > html/index.html
+        docker run --rm --entrypoint bash \
+          -v "$GITHUB_WORKSPACE:/w" -w /w -e AGDA_DIR=/w/.agda \
+          "$AGDA_IMAGE" -euc '
+            mkdir -p .agda
+            echo /w/TypeTopology/typetopology.agda-lib > .agda/libraries
+            agda --version
+            (cd source && agda --safe DialogueTreesHeight/index.lagda +RTS -A64M -RTS)
+            python3 TypeTopologyTools/admin-utilities/agda-html.py \
+              --typetopology . \
+              --entry DialogueTreesHeight/index.lagda \
+              --css TypeTopologyTools/assets/Agda.css \
+              --out html
+            python3 TypeTopologyTools/admin-utilities/agda-html.py \
+              --typetopology . \
+              --entry DialogueTreesHeight/index.lagda \
+              --html html --out html --check
+            printf "<!doctype html><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0; url=DialogueTreesHeight.index.html\"><a href=\"DialogueTreesHeight.index.html\">DialogueTreesHeight.index</a>\n" > html/index.html
+          '
 
     - uses: actions/upload-artifact@v4
       with:
