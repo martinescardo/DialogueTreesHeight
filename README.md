@@ -176,6 +176,21 @@ whose full text is in the file [`LICENSE`][LICENSE]. It may be used,
 shared and adapted for any purpose, provided that appropriate credit is
 given.
 
+## Citing this work
+
+```bibtex
+@misc{Escardo2026DialogueTreesHeight,
+  author       = {Escard{\'o}, Mart{\'\i}n},
+  title        = {The dialogue trees of system {T} have height below
+                  $\varepsilon_0$, and this bound is sharp},
+  year         = {2026},
+  month        = oct,
+  howpublished = {\url{https://github.com/martinescardo/DialogueTreesHeight}},
+  note         = {An Agda formalization, with a paper, developed with
+                  LLM's},
+}
+```
+
 [pdf]: https://martinescardo.github.io/DialogueTreesHeight/dialogue-tree-height.pdf
 [MFPSAndVariations]: https://github.com/martinescardo/TypeTopology/tree/ee4e4c86da34ac609389285baa01e2eab6062b37/source/EffectfulForcing/MFPSAndVariations
 [BrouwerCodes]: https://github.com/martinescardo/TypeTopology/blob/ee4e4c86da34ac609389285baa01e2eab6062b37/source/Ordinals/BrouwerCodes.lagda
