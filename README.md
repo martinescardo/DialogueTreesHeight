@@ -64,6 +64,32 @@ interpretation come from the module
 [TypeTopology](https://github.com/martinescardo/TypeTopology), and the
 Brouwer codes from its module [`Ordinals.BrouwerCodes`][BrouwerCodes].
 
+## The main theorems
+
+The four results are proved in two modules of
+[`DialogueTrees`][DialogueTrees] and restated independently in its
+module [`Main`][Main].
+
+| result | proved in | restated in |
+| --- | --- | --- |
+| upper bound | [`Fundamental.dialogue-tree-height-<-ε₀`][Fundamental] | [`Main.restated`][Main] |
+| lower bound | [`Sharpness.tower-attained`][Sharpness] | [`Main.attained`][Main] |
+| cofinality | [`Sharpness.heights-cofinal`][Sharpness] | [`Main.cofinal`][Main] |
+| least bound | [`Sharpness.ε₀-least`][Sharpness] | [`Main.least`][Main] |
+
+To trust the results, it's enough to read their statements, which are
+the four types in `Main`, together with the type `T ((ι ⇒ ι) ⇒ ι)` they
+quantify over and the definitions they're built from. These are the
+order and the arithmetic of Brouwer codes in the modules
+[`Order`][Order], [`Multiplication`][Multiplication] and
+[`Epsilon0`][Epsilon0], the height of a dialogue tree in
+[`Constructive`][Constructive], and [`dialogue-tree`][dialogue-tree] in
+TypeTopology, some twenty lines in all. The module `Main` writes the
+statements out with the abbreviations unfolded, checks that the type
+quantified over is inhabited and that the order isn't degenerate, and
+checks by `refl` that the approximants of `ε₀` are `ω`, `ω^ω`, `ω^ω^ω`,
+and so on, with `ε₀` their limit.
+
 ## How the formalization was pruned
 
 The attempts to prove the upper bound produced 118 Agda modules, with
@@ -123,32 +149,6 @@ modules here, with 5,643 lines, of which 2,985 are code.
 | the modules the proof of the upper bound imports | 34 | 8,167 | 4,325 | 1,394 |
 | those modules, pruned | 24 | 4,668 | 2,555 | 693 |
 | **this repository**: the pruned modules with the sharpness results | **28** | **5,643** | **2,985** | **955** |
-
-## The main theorems
-
-The four results are proved in two modules of
-[`DialogueTrees`][DialogueTrees] and restated independently in its
-module [`Main`][Main].
-
-| result | proved in | restated in |
-| --- | --- | --- |
-| upper bound | [`Fundamental.dialogue-tree-height-<-ε₀`][Fundamental] | [`Main.restated`][Main] |
-| lower bound | [`Sharpness.tower-attained`][Sharpness] | [`Main.attained`][Main] |
-| cofinality | [`Sharpness.heights-cofinal`][Sharpness] | [`Main.cofinal`][Main] |
-| least bound | [`Sharpness.ε₀-least`][Sharpness] | [`Main.least`][Main] |
-
-To trust the results, it's enough to read their statements, which are
-the four types in `Main`, together with the type `T ((ι ⇒ ι) ⇒ ι)` they
-quantify over and the definitions they're built from. These are the
-order and the arithmetic of Brouwer codes in the modules
-[`Order`][Order], [`Multiplication`][Multiplication] and
-[`Epsilon0`][Epsilon0], the height of a dialogue tree in
-[`Constructive`][Constructive], and [`dialogue-tree`][dialogue-tree] in
-TypeTopology, some twenty lines in all. The module `Main` writes the
-statements out with the abbreviations unfolded, checks that the type
-quantified over is inhabited and that the order isn't degenerate, and
-checks by `refl` that the approximants of `ε₀` are `ω`, `ω^ω`, `ω^ω^ω`,
-and so on, with `ε₀` their limit.
 
 ## Typechecking
 
