@@ -77,15 +77,40 @@ and abandoned, and a classical treatment over ordinals.
 The pruning started from the module [`Fundamental`][Fundamental], which
 proves the upper bound, and kept only the modules it imports, directly
 or indirectly. That left 34 modules, with 8,167 lines, of which 4,325
-are code, and discarded the other 84 outright. Within those 34 modules,
-the definitions that the proof doesn't use were then removed, and after
-them the 205 imported names that were no longer used, together with 41
-whole import statements. The development was typechecked again after
-each step. Modules that this emptied were deleted, the 71 paragraphs of
-prose that introduced emptied code blocks were cut, and modules whose
-names no longer fitted their contents were renamed or merged. The
-remaining prose was then rewritten throughout. This leaves 24 modules,
-with 4,668 lines, of which 2,555 are code.
+are code, and discarded the other 84 outright.
+
+Within those 34 modules, the pruning then worked on definitions. A
+program read off, for each top-level definition, the definitions its
+code mentions, and removed every definition that the theorem doesn't
+reach in the resulting graph. The program reads names rather than types,
+so its verdict wasn't taken on trust: the development was typechecked
+again after each round of removals, and the rounds were repeated until
+nothing more went. Then each surviving definition was deleted in turn
+and kept only if the development then failed to typecheck. This took 335
+typechecks and found four more definitions to remove. Of the 554
+top-level definitions in the 34 modules, 333 are used by the proof and
+221 aren't. The result is minimal in the sense that no single definition
+can be removed, which doesn't exclude that several could be removed
+together.
+
+Next, the 205 imported names that were no longer used were removed,
+together with 41 whole import statements, again typechecking after each
+step. One more module was then imported by nothing, and it was deleted
+together with the modules that the pruning had emptied. The 71
+paragraphs of prose that introduced emptied code blocks were cut, and
+the modules whose names no longer fitted their contents were renamed or
+merged. The remaining prose was then rewritten throughout. A second run
+of the one-at-a-time check, after these steps, was stopped after 100 of
+the 330 remaining definitions, having found nothing to remove. This
+leaves 24 modules, with 4,668 lines, of which 2,555 are code.
+
+Two things went wrong along the way, and both were caught. Removing
+imports once emptied the index, so that later typechecks checked
+nothing and the one-at-a-time check deleted almost everything, and Agda
+once reused stale interface files instead of checking the edited
+sources. Both passes were run again with Agda made to check the edited
+sources each time, and the final development was checked from deleted
+interface files.
 
 The sharpness results were proved afterwards, in the modules
 [`Examples`][Examples] and [`Sharpness`][Sharpness]. Together with
