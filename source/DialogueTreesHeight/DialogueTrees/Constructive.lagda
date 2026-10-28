@@ -7,7 +7,7 @@ because the successor map on ordinals is not monotone without it, for which
 see `succ-not-necessarily-monotone` in Ordinals.AdditionProperties.
 
 We take the height to be a Brouwer ordinal code instead, and we equip the codes
-with their syntactic order, for which the successor is monotone by
+with their natural order, for which the successor is monotone by
 construction. The order and the addition on the codes are ordinal arithmetic
 and are in the module BrouwerOrdinals.Order, which this module re-exports. We
 add the height function and its three lemmas. The only assumption is function

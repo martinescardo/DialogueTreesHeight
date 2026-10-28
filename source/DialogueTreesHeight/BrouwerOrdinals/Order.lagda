@@ -1,4 +1,4 @@
-The syntactic order and addition on Brouwer ordinal codes.
+The natural order and addition on Brouwer ordinal codes.
 
 This is the base of the development. We define the constructive order `_≤_` on
 the Brouwer codes of Ordinals.BrouwerCodes, for which the successor is

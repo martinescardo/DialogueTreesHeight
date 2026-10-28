@@ -80,6 +80,7 @@
 \newunicodechar{⊕}{\ensuremath{\oplus}}
 \newunicodechar{⊗}{\ensuremath{\otimes}}
 \newunicodechar{⊑}{\ensuremath{\sqsubseteq}}
+\newunicodechar{⊒}{\ensuremath{\sqsupseteq}}
 \newunicodechar{⊴}{\ensuremath{\trianglelefteq}}
 \newunicodechar{⊲}{\ensuremath{\vartriangleleft}}
 \newunicodechar{⋖}{\ensuremath{\lessdot}}
@@ -292,9 +293,10 @@ write that they do not claim the bound sharp, and they leave open
 whether the heights are cofinal in~$\eps$.
 
 What this paper adds is twofold. The proof is constructive: the
-ordinals are Brouwer codes with their syntactic order, so the whole
-development assumes function extensionality and nothing else, and a
-bound in that order implies the classical one. And the heights are
+ordinals are Brouwer codes with their natural order, so the whole
+development assumes function extensionality and nothing else, and,
+classically, a bound in that order implies the classical one. And the
+heights are
 shown to be cofinal in~$\eps$ (\cref{cor:least}), which answers the
 question Xiao and Sun leave open and makes $\eps$ the least bound.
 What this paper does not supply is their computable tower level: the
@@ -333,7 +335,7 @@ that exponent at order~$2$, and so on. One rule governs the whole
 construction, that an entry is raised only by entries of its own order
 or higher, which is the rule that iterating $x\mapsto\omega^{x}$
 breaks. The maps between such tuples that obey the rule form a
-calculus with application, abstraction and projection
+calculus with application, abstraction, projection and iteration
 (\cref{sec:graded}), and the two hard clauses of the induction on
 terms, the one for~$\Sc$ and the one for the recursor, are then
 written as a reader of $\lambda f\,g\,a.\,f\,a\,(g\,a)$ would write
@@ -357,16 +359,17 @@ modules whose names begin with \AgdaModule{Ordinals} or \AgdaModule{EffectfulFor
 of the \texttt{TypeTopology} library. Everything is checked with the
 flags \texttt{--safe} and \texttt{--without-K}, with no postulates and
 no holes. The one assumption is function extensionality, which is a
-parameter of every module and is used at the limit case of each
-arithmetic law proved by induction. The pointers can be suppressed by
+parameter of every module but the index and is used at the limit case
+of each arithmetic law proved by induction. The pointers can be suppressed by
 setting \texttt{\textbackslash agdarefsfalse} in the preamble.
 
 \section{Dialogue trees and their heights}
 \label{sec:dialogue}
 
 We recall the dialogue trees of~\cite{Escardo2013}, the functor and
-monad they form, and the dialogue interpretation that assigns a tree
-to each closed term of system T.
+monad they form with the Kleisli extension and the generic oracle, and
+the dialogue interpretation that assigns a tree to each closed term of
+system T.
 
 \begin{definition}[Dialogue trees]
 \label{def:dialogue-tree-type}
@@ -390,13 +393,35 @@ $\mathrm{dialogue}\,(\beta\,\varphi\,i)\,\alpha =
 \end{definition}
 
 The operation $\Dial$ is a functor, the tree $\Dial f\,d$ being $d$
-with its leaves relabelled by~$f$, and a monad. We write $\kext g$ for
-the Kleisli extension of $g : X \to \Dial Y$, which grafts the tree
-$g\,x$ onto each leaf $\eta\,x$, and
-$\mathrm{generic} = \kext{(\beta\,\eta)}$ for the generic oracle,
-which asks the oracle at the value a tree computes.
+with its leaves relabelled by~$f$, and a monad with unit~$\eta$.
+
+\begin{definition}[Kleisli extension and the generic oracle]
+\label{def:kleisli-generic}
+The Kleisli extension of $g : X \to \Dial Y$ is the map
+$\kext g : \Dial X \to \Dial Y$ that grafts the tree $g\,x$ onto each
+leaf $\eta\,x$,
+\[
+  \kext g\,(\eta\,x) = g\,x , \qquad
+  \kext g\,(\beta\,\varphi\,i) = \beta\,(\kext g \circ \varphi)\,i .
+\]
+The generic oracle is the map
+$\mathrm{generic} = \kext{(\beta\,\eta)} : \Dial\N \to \Dial\N$, where
+$\beta\,\eta$ sends~$i$ to the tree $\beta\,\eta\,i$, which asks the
+oracle at~$i$ and answers what it is told. Thus
+\[
+  \mathrm{generic}\,(\eta\,i) = \beta\,\eta\,i , \qquad
+  \mathrm{generic}\,(\beta\,\varphi\,i)
+    = \beta\,(\mathrm{generic}\circ\varphi)\,i ,
+\]
+and $\mathrm{generic}\,d$ asks the oracle at the value that the tree
+$d$ computes,
+\[
+  \mathrm{dialogue}\,(\mathrm{generic}\,d)\,\alpha
+  = \alpha\,(\mathrm{dialogue}\,d\,\alpha) .
+\]
 \AgdaRefs{\Agda{EffectfulForcing.MFPSAndVariations.Dialogue}{kleisli-extension};
-\texttt{generic}, \texttt{B-functor}.}
+\texttt{generic}, \texttt{generic-diagram}, \texttt{B-functor}.}
+\end{definition}
 
 We write $\iterop$ for iteration on the natural numbers,
 $\iterop\,f\,x\,0 = x$ and
@@ -458,17 +483,19 @@ Brouwer codes are at hand.
 \section{Brouwer codes and their arithmetic}
 \label{sec:codes}
 
-We take the ordinals to be Brouwer codes with their syntactic order,
-for which the successor is monotone by construction, define addition,
-multiplication, exponentiation and the tower whose supremum is~$\eps$,
-record the closure properties of~$\eps$ that the proof uses, and
-define the height of a dialogue tree with its three properties.
+We take the ordinals to be Brouwer codes with their natural order,
+for which the successor is monotone by construction, and prove the
+properties of the order; we define addition, multiplication,
+exponentiation and the tower whose supremum is~$\eps$ and prove their
+laws; we prove the closure properties of~$\eps$ and the laws of
+absorption that the proof uses; and we define the height of a dialogue
+tree with its three properties.
 
 A classical treatment would interpret the height of a dialogue tree as
 an ordinal in the sense of the univalent library, and then the grafting
 and generic lemmas need excluded middle, because the successor map on
 ordinals is not monotone without it. Brouwer codes with their
-syntactic order avoid this.
+natural order avoid this.
 \AgdaRefs{\Agda{Ordinals.AdditionProperties}{succ-not-necessarily-monotone}.}
 
 \begin{definition}[Brouwer codes and their order]
@@ -480,7 +507,8 @@ by
   \bS : \Brouwer \to \Brouwer , \qquad
   \bL : (\N \to \Brouwer) \to \Brouwer .
 \]
-The order $\le$ on~$\Brouwer$ is inductively generated by four rules,
+The natural order $\le$ on~$\Brouwer$ is inductively generated by four
+rules,
 the least element property, the successor rule, the cocone and the
 limit rule, saying that $\bZ$ is least, that the successor is
 monotone, that $\bL f$ is above each $f\,n$, and that $\bL f$ is below
@@ -499,11 +527,66 @@ We write $a < b$ for $\bS a \le b$.
 
 A limit is therefore the least upper bound of its family, and the
 successor is monotone for arbitrary codes, which is what the classical
-reading lacks. The order is reflexive and transitive, transitivity by a
-lexicographic recursion that descends on the left proof when it is a
-limit and on the right proof otherwise.
+reading lacks. Identities between codes are proved below by induction,
+and at a limit they use function extensionality, to identify the
+limits of two families that agree pointwise.
+
+\begin{lemma}[The order]
+\label{lem:order}
+Let $a$, $b$ and $c$ be codes and $f$ and $g$ families of codes.
+\begin{enumerate}
+\item\label{item:refl}
+  $a \le a$.
+\item\label{item:trans}
+  If $a \le b$ and $b \le c$ then $a \le c$.
+\item\label{item:S-incr}
+  $a \le \bS a$.
+\item\label{item:L-mono}
+  $f\,n \le \bL f$ for every~$n$, and if $f\,n \le g\,n$ for every~$n$
+  then $\bL f \le \bL g$.
+\end{enumerate}
 \AgdaRefs{\Agda{BrouwerOrdinals.Order}{≤-refl}; \texttt{≤-trans},
-\texttt{≤-L-mono}, \texttt{≤-L-upper-bound}.}
+\texttt{≤-L-mono}, \texttt{≤-L-upper-bound};
+\Agda{BrouwerOrdinals.Epsilon0}{S-increasing}.}
+\end{lemma}
+
+\begin{proof}
+(\labelcref{item:refl}) By induction on~$a$: $\bZ \le \bZ$ by the least
+element property, $\bS a \le \bS a$ by the successor rule, and
+$\bL f \le \bL f$ by the limit rule, each $f\,n$ being below $\bL f$ by
+the cocone applied to $f\,n \le f\,n$.
+
+(\labelcref{item:trans}) By recursion on the two derivations, by cases
+on the last rule of the first and then of the second. If the first is
+the least element property, then $a = \bZ$ and $\bZ \le c$. If the
+first is the limit rule, with $a = \bL f$ and $f\,n \le b$ for
+every~$n$, we recurse on each $f\,n \le b$ with the same second
+derivation and apply the limit rule. If the first is the successor
+rule, from $a' \le b'$, the second ends either with the successor rule,
+from $b' \le c'$, and we recurse on the two premises, or with the
+cocone, from $\bS b' \le g\,m$, and we recurse on the first derivation
+and that premise and apply the cocone. If the first is the cocone, from
+$a \le f\,n$ with $b = \bL f$, the second ends either with the cocone,
+from $\bL f \le g\,m$, and we recurse on the first derivation and that
+premise and apply the cocone, or with the limit rule, from
+$f\,k \le c$ for every~$k$, and we recurse on $a \le f\,n$ and
+$f\,n \le c$. No other combination of rules can occur, since the least
+element property has $\bZ$ on the left, the successor rule successors
+on both sides, the cocone a limit on the right and the limit rule a
+limit on the left. Each recursive call has a smaller first derivation,
+or the same first derivation and a smaller second one, so the recursion
+terminates.
+
+(\labelcref{item:S-incr}) By induction on~$a$: $\bZ \le \bS\bZ$ by the
+least element property, $\bS a \le \bS\bS a$ by the successor rule,
+and for a limit $f\,n \le \bS(f\,n) \le \bS\bL f$, by induction, by
+the successor rule applied to the cocone $f\,n \le \bL f$, and
+by~(\labelcref{item:trans}), so that the limit rule applies.
+
+(\labelcref{item:L-mono}) The first claim is the cocone applied
+to~(\labelcref{item:refl}). For the second, $f\,n \le g\,n \le \bL g$
+by the cocone, and the limit rule applies.
+\end{proof}
 
 \begin{remark}
 \label{rem:one-branch}
@@ -516,6 +599,24 @@ is what makes a lower bound of~$\omega$ available by induction
 lower bounds of~\cref{sec:sharp} go through terms rather than through
 the order alone.
 \end{remark}
+
+\begin{lemma}[Irreflexivity]
+\label{lem:irrefl}
+For no code~$a$ is $\bS a \le a$.
+\AgdaRefs{\Agda{DialogueTrees.Examples}{S-irrefl}.}
+\end{lemma}
+
+\begin{proof}
+By induction on~$a$, by the last rule of a derivation of
+$\bS a \le a$. No rule concludes $\bS\bZ \le \bZ$, for the reason
+given in the proof of~\cref{lem:order}(\labelcref{item:trans}). A
+derivation of $\bS\bS a \le \bS a$ ends with the successor rule, from
+$\bS a \le a$, which the induction hypothesis excludes. A derivation of
+$\bS\bL f \le \bL f$ ends with the cocone, from $\bS\bL f \le f\,n$
+for some~$n$. Then $\bS(f\,n) \le \bS\bL f \le f\,n$, by the successor
+rule applied to the cocone $f\,n \le \bL f$ and by transitivity, which
+the induction hypothesis at $f\,n$ excludes.
+\end{proof}
 
 \begin{definition}[Arithmetic of codes]
 \label{def:arithmetic}
@@ -545,14 +646,166 @@ $\tower 0 = \omega$ and $\tower{n+1} = \omega^{\tower n}$, and
 
 The equation $a \bplus \bS b = \bS(a \bplus b)$ makes addition on the
 left commute with successors and limits definitionally, which is what
-the inductions below rely on. Addition is associative and monotone in
-each argument, multiplication by a fixed code on the left distributes
-over addition and is associative and monotone in each argument, and
-exponentiation is monotone and inflationary.
-\AgdaRefs{\Agda{BrouwerOrdinals.Multiplication}{⊕-assoc};
-\texttt{⊕-mono-left}, \texttt{⊗-left-distrib}, \texttt{⊗-assoc};
-\Agda{BrouwerOrdinals.Epsilon0}{⊕-mono-right}, \texttt{⊗-mono-left},
-\texttt{⊗-mono-right}, \texttt{ω\^{}-mono}, \texttt{≤-ω\^{}}.}
+the inductions below rely on.
+
+\begin{lemma}[Addition]
+\label{lem:add}
+Let $a$, $a'$, $b$ and $c$ be codes.
+\begin{enumerate}
+\item\label{item:Z-unit}
+  $\bZ \bplus a = a$.
+\item\label{item:add-incr}
+  $a \le a \bplus b$ and $b \le a \bplus b$.
+\item\label{item:add-mono}
+  If $a \le a'$ then $a \bplus c \le a' \bplus c$, and if $b \le c$ then
+  $a \bplus b \le a \bplus c$.
+\item\label{item:add-assoc}
+  $(a \bplus b) \bplus c = a \bplus (b \bplus c)$.
+\end{enumerate}
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{Z-left-unit};
+\texttt{⊕-increasing-right}, \texttt{⊕-mono-right};
+\Agda{BrouwerOrdinals.Multiplication}{⊕-increasing-left},
+\texttt{⊕-mono-left}, \texttt{⊕-assoc}.}
+\end{lemma}
+
+\begin{proof}
+Part~(\labelcref{item:Z-unit}) is an induction on~$a$, and
+(\labelcref{item:add-assoc}) an induction on~$c$. In
+(\labelcref{item:add-incr}), $a \le a \bplus b$ is an induction
+on~$b$: at a successor $a \le a \bplus b \le \bS(a \bplus b)$
+by~\cref{lem:order}(\labelcref{item:S-incr}), and at a limit,
+$a \le a \bplus f\,0$ by induction, and $a \bplus f\,0$ is below
+$\bL(n \mapsto a \bplus f\,n)$ by the cocone. The inequality $b \le a \bplus b$ is an induction on~$b$, by the
+least element property, the successor rule
+and~\cref{lem:order}(\labelcref{item:L-mono}). In
+(\labelcref{item:add-mono}), monotonicity on the left is an induction
+on~$c$, by the successor rule and~\cref{lem:order}(\labelcref{item:L-mono}).
+Monotonicity on the right is an induction on the derivation of
+$b \le c$. For the least element property,
+$a \bplus \bZ = a \le a \bplus c$ by~(\labelcref{item:add-incr}), and
+each of the other three rules is applied again to the sums, since
+$a \bplus \bS b = \bS(a \bplus b)$ and
+$a \bplus \bL f = \bL(n \mapsto a \bplus f\,n)$.
+\end{proof}
+
+\begin{lemma}[Multiplication]
+\label{lem:mult}
+Let $a$, $a'$, $b$, $c$, $x$ and $y$ be codes.
+\begin{enumerate}
+\item\label{item:one-unit}
+  $\num 1 \btimes y = y$ and $x \btimes \num 1 = x$.
+\item\label{item:mult-mono}
+  If $a \le a'$ then $a \btimes c \le a' \btimes c$, and if $b \le c$
+  then $a \btimes b \le a \btimes c$.
+\item\label{item:distrib}
+  $c \btimes (x \bplus y) = c \btimes x \bplus c \btimes y$.
+\item\label{item:mult-assoc}
+  $(a \btimes b) \btimes c = a \btimes (b \btimes c)$.
+\end{enumerate}
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{SZ-⊗}; \texttt{⊗-mono-left},
+\texttt{⊗-mono-right};
+\Agda{BrouwerOrdinals.Multiplication}{⊗-left-distrib},
+\texttt{⊗-assoc}.}
+\end{lemma}
+
+\begin{proof}
+(\labelcref{item:one-unit}) The first identity is an induction on~$y$,
+since $\num 1 \btimes \bS y = \num 1 \btimes y \bplus \num 1
+= \bS(\num 1 \btimes y)$, and the second is
+$x \btimes \num 1 = \bZ \bplus x = x$, by~\cref{lem:add}(\labelcref{item:Z-unit}).
+
+(\labelcref{item:mult-mono}) Monotonicity on the left is an induction
+on~$c$: $a \btimes \bS c = a \btimes c \bplus a \le a' \btimes c \bplus
+a \le a' \btimes c \bplus a'$ by~\cref{lem:add}(\labelcref{item:add-mono})
+twice, and limits are handled
+by~\cref{lem:order}(\labelcref{item:L-mono}). Monotonicity on the right
+is an induction on the derivation of $b \le c$: the least element
+property gives $\bZ \le a \btimes c$, the successor rule gives
+$a \btimes b \bplus a \le a \btimes c \bplus a$
+by~\cref{lem:add}(\labelcref{item:add-mono}), and the cocone and the
+limit rule are applied again to the products, since
+$a \btimes \bL f = \bL(n \mapsto a \btimes f\,n)$.
+
+(\labelcref{item:distrib}) By induction on~$y$, the case of a successor
+being
+$c \btimes (x \bplus \bS y) = c \btimes (x \bplus y) \bplus c
+= (c \btimes x \bplus c \btimes y) \bplus c
+= c \btimes x \bplus (c \btimes y \bplus c)$
+by~\cref{lem:add}(\labelcref{item:add-assoc}).
+
+(\labelcref{item:mult-assoc}) By induction on~$c$, the case of a
+successor being
+$(a \btimes b) \btimes \bS c = a \btimes (b \btimes c) \bplus a \btimes b
+= a \btimes (b \btimes c \bplus b) = a \btimes (b \btimes \bS c)$
+by~(\labelcref{item:distrib}).
+\end{proof}
+
+\begin{lemma}[Exponentiation]
+\label{lem:exp}
+Let $a$ and $b$ be codes.
+\begin{enumerate}
+\item\label{item:exp-pos}
+  $\num 1 \le \omega^{b}$.
+\item\label{item:exp-mono}
+  If $a \le b$ then $\omega^{a} \le \omega^{b}$.
+\item\label{item:exp-double}
+  $\omega^{b} \bplus \omega^{b} \le \omega^{b} \btimes \omega$, and
+  hence $\bS(\omega^{b}) \le \omega^{\bS b}$.
+\item\label{item:exp-incr}
+  $a \le \omega^{a}$.
+\item\label{item:exp-hom}
+  $\omega^{\num 1} = \omega$ and
+  $\omega^{a} \btimes \omega^{b} = \omega^{a \bplus b}$.
+\end{enumerate}
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{one-≤-ω\^{}};
+\texttt{ω\^{}-mono}, \texttt{ω\^{}-double}, \texttt{S-ω\^{}-step},
+\texttt{≤-ω\^{}}, \texttt{ω\^{}-ι1};
+\Agda{BrouwerOrdinals.MultClosure}{ω\^{}⊗}.}
+\end{lemma}
+
+\begin{proof}
+(\labelcref{item:exp-pos}) By induction on~$b$: $\omega^{\bZ} = \num 1$;
+the code $\omega^{\bS b} = \omega^{b} \btimes \omega
+= \bL(n \mapsto \omega^{b} \btimes \num n)$ is above
+$\omega^{b} \btimes \num 1 = \omega^{b}$ by the cocone
+and~\cref{lem:mult}(\labelcref{item:one-unit}); and $\omega^{\bL f}$ is
+above $\omega^{f\,0}$ by the cocone.
+
+(\labelcref{item:exp-mono}) By induction on the derivation of
+$a \le b$: the least element property gives
+$\num 1 \le \omega^{b}$ by~(\labelcref{item:exp-pos}), the successor
+rule gives $\omega^{a} \btimes \omega \le \omega^{b} \btimes \omega$
+by~\cref{lem:mult}(\labelcref{item:mult-mono}), and the cocone and the
+limit rule are applied again, since
+$\omega^{\bL f} = \bL(n \mapsto \omega^{f\,n})$.
+
+(\labelcref{item:exp-double}) We have
+$\omega^{b} \bplus \omega^{b} = \omega^{b} \btimes \num 2$
+by~\cref{lem:mult}(\labelcref{item:one-unit}), which is
+below $\bL(n \mapsto \omega^{b} \btimes \num n) = \omega^{b} \btimes
+\omega$ by the cocone, and
+$\bS(\omega^{b}) = \omega^{b} \bplus \num 1 \le
+\omega^{b} \bplus \omega^{b}$
+by~(\labelcref{item:exp-pos}) and~\cref{lem:add}(\labelcref{item:add-mono}),
+while $\omega^{\bS b} = \omega^{b} \btimes \omega$.
+
+(\labelcref{item:exp-incr}) By induction on~$a$: $\bZ$ is least,
+$\bS a \le \bS(\omega^{a}) \le \omega^{\bS a}$ by the successor rule
+and~(\labelcref{item:exp-double}), and limits are handled
+by~\cref{lem:order}(\labelcref{item:L-mono}).
+
+(\labelcref{item:exp-hom}) First,
+$\omega^{\num 1} = \num 1 \btimes \omega
+= \bL(n \mapsto \num 1 \btimes \num n) = \bL(n \mapsto \num n)
+= \omega$ by~\cref{lem:mult}(\labelcref{item:one-unit}). The exponent
+law is an induction on~$b$: at $\bZ$ both sides are~$\omega^{a}$
+by~\cref{lem:mult}(\labelcref{item:one-unit}); at a successor
+$\omega^{a} \btimes (\omega^{b} \btimes \omega)
+= (\omega^{a} \btimes \omega^{b}) \btimes \omega
+= \omega^{a \bplus b} \btimes \omega = \omega^{a \bplus \bS b}$
+by~\cref{lem:mult}(\labelcref{item:mult-assoc}); and limits are handled
+pointwise.
+\end{proof}
 
 \begin{lemma}[The tower is strictly increasing]
 \label{lem:tower}
@@ -567,14 +820,59 @@ A direct induction on~$n$ has to put the successor of the limit
 $\tower n$ below the limit $\tower{n+1}$, which by the cocone rule
 needs a single member of the latter above the whole of the former,
 and the induction hypothesis supplies none. The obstruction is
-removed by a descent:
-strictness at $\omega^{b}$ reduces, through
-$\bS(\omega^{b}) \le \omega^{b} \bplus \omega^{b} \le \omega^{b}
- \btimes \omega$ and monotonicity of the exponential, to strictness
-at~$b$, and the descent stops at $\omega < \omega^{\omega}$, which is
-proved from $\omega^{\num 1} = \omega$.
+removed by~\cref{lem:exp}(\labelcref{item:exp-double}),
+$\bS(\omega^{b}) \le \omega^{\bS b}$, which reduces strictness at
+$\omega^{b}$ to strictness at~$b$. At $n = 0$, since
+$\omega = \omega^{\num 1}$, we get
+$\bS\omega \le \omega^{\num 2} \le \omega^{\omega} = \tower 1$, by
+monotonicity of exponentiation and $\num 2 \le \omega$. At $n+1$,
+\[
+  \bS\,\tower{n+1} = \bS(\omega^{\tower n}) \le \omega^{\bS\tower n}
+  \le \omega^{\tower{n+1}} = \tower{n+2} ,
+\]
+by monotonicity and the induction hypothesis. Finally
+$\bS\,\tower n \le \tower{n+1}$ gives $\tower n < \eps$ by the cocone
+at~$n+1$.
 \AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{S-ω\^{}-step};
 \texttt{ω\^{}-ι1}, \texttt{ω<ω\^{}ω}.}
+\end{proof}
+
+\begin{lemma}[The tower absorbs sums and products]
+\label{lem:tower-absorb}
+If $m \le n$ then $\tower m \le \tower n$, and for every~$n$,
+\[
+  \tower n \bplus \tower n \le \tower{n+1} , \qquad
+  \tower n \btimes \tower n \le \tower{n+1} .
+\]
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{tower-mono-step};
+\texttt{tower-mono-ℕ}, \texttt{tower-double};
+\Agda{BrouwerOrdinals.MultClosure}{tower-sq}.}
+\end{lemma}
+
+\begin{proof}
+Monotonicity follows by induction from
+$\tower n \le \tower{n+1}$, which holds because
+$\tower n \le \bS\,\tower n \le \tower{n+1}$,
+by~\cref{lem:order}(\labelcref{item:S-incr}) and~\cref{lem:tower}. For the sums, at $n = 0$, with
+$\omega = \omega^{\num 1}$,
+\[
+  \omega \bplus \omega \le \omega^{\num 1} \btimes \omega
+  = \omega^{\num 2} \le \omega^{\omega}
+\]
+by~\cref{lem:exp}(\labelcref{item:exp-double},\labelcref{item:exp-mono}),
+and at $n+1$,
+\[
+  \omega^{\tower n} \bplus \omega^{\tower n}
+  \le \omega^{\bS\tower n} \le \omega^{\tower{n+1}}
+\]
+by the same two parts of~\cref{lem:exp} and~\cref{lem:tower}. For the
+products we use the exponent law
+of~\cref{lem:exp}(\labelcref{item:exp-hom}): at $n = 0$,
+$\omega \btimes \omega = \omega^{\num 1 \bplus \num 1}
+= \omega^{\num 2} \le \omega^{\omega}$, and at $n+1$,
+$\omega^{\tower n} \btimes \omega^{\tower n}
+= \omega^{\tower n \bplus \tower n} \le \omega^{\tower{n+1}}$ by the
+case for sums and monotonicity.
 \end{proof}
 
 \begin{proposition}[Closure of $\eps$]
@@ -586,15 +884,139 @@ $b < \eps$ as well then $a \bplus b < \eps$ and $a \btimes b < \eps$.
 \end{proposition}
 
 \begin{proof}
-A proof of $a < \eps$ can be inverted to a tower level by a single
-pattern match, since the cocone rule is the only one that puts a
-successor below the limit~$\eps$. Two codes below~$\eps$ are therefore
-pushed to a common tower level, and the sum is absorbed one level up
-by $\tower n \bplus \tower n \le \tower{n+1}$, the product by
-$\tower n \btimes \tower n \le \tower{n+1}$.
-\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{tower-double};
-\texttt{tower-mono-ℕ}; \Agda{BrouwerOrdinals.MultClosure}{tower-sq},
-\texttt{ω\^{}⊗}.}
+A derivation of $a < \eps$, that is of
+$\bS a \le \bL(n \mapsto \tower n)$, ends with the cocone, since the
+least element property and the limit rule have $\bZ$ and a limit on the
+left and the successor rule has a successor on the right. So
+$\bS a \le \tower j$ for some~$j$, and hence $a \le \tower j$
+by~\cref{lem:order}(\labelcref{item:S-incr}). Conversely, if
+$x \le \tower m$ then $x < \eps$, since
+$\bS x \le \bS\,\tower m \le \tower{m+1}$ by~\cref{lem:tower} and the
+cocone applies.
+
+Now let $\bS a \le \tower j$, so that $\bS a < \eps$ by the converse.
+For the other claims let also $b \le \tower k$, and let $N$ be the
+larger of $j$ and~$k$, so that $a$ and~$b$ are below $\tower N$
+by~\cref{lem:tower-absorb}. Then
+\[
+  \omega^{a} \le \omega^{\tower N} = \tower{N+1} , \qquad
+  a \bplus b \le \tower N \bplus \tower N \le \tower{N+1} , \qquad
+  a \btimes b \le \tower N \btimes \tower N \le \tower{N+1} ,
+\]
+by monotonicity of the operations, \cref{lem:add,lem:mult,lem:exp},
+and by~\cref{lem:tower-absorb}, and the converse puts each of these
+codes below~$\eps$.
+\AgdaRefs{\Agda{BrouwerOrdinals.Epsilon0}{tower-mono-ℕ};
+\texttt{tower-double}; \Agda{BrouwerOrdinals.MultClosure}{tower-sq}.}
+\end{proof}
+
+The graded maps of~\cref{sec:graded} are bounded by sums of several
+pieces, and the following laws absorb such sums into a single product
+with a power of~$\omega$. We say that a code $x$ is below a finite
+multiple of a code~$M$ when $x \le M \btimes \num n$ for some~$n$.
+
+\begin{lemma}[Absorption]
+\label{lem:absorb}
+Let $a$, $b$, $c$, $e$, $s$, $x$, $y$ and $M$ be codes.
+\begin{enumerate}
+\item\label{item:exp-law}
+  $\omega^{a \bplus b} = \omega^{a} \btimes \omega^{b}$, and
+  $\num 1 \le \omega^{a}$.
+\item\label{item:mult-incr}
+  If $\num 1 \le y$ then $x \le x \btimes y$ and $x \le y \btimes x$.
+\item\label{item:double}
+  $x \bplus x \le x \btimes \omega$, and
+  $\num 1 \bplus x \le \bS x$.
+\item\label{item:multiple}
+  Every code below~$M$ is below a finite multiple of~$M$, and so is the
+  sum of two codes below finite multiples of~$M$. If $x$ is below a
+  finite multiple of~$M$, then
+  \[
+    x \btimes \omega^{e} \le M \btimes \omega^{\bS e} , \qquad
+    x \le M \btimes \omega , \qquad
+    x \btimes \omega \le M \btimes \omega .
+  \]
+\item\label{item:iterate}
+  If $\num 1 \le s$, then for every~$k$ the $k$-th iterate from~$a$ of
+  the map $b \mapsto (b \bplus c) \btimes \omega^{s \btimes \omega}$
+  is below $(a \bplus c) \btimes
+  \omega^{(s \btimes \omega) \btimes \omega}$.
+\end{enumerate}
+\AgdaRefs{\Agda{BrouwerOrdinals.MultClosure}{ω\^{}⊗}; \texttt{S⊕≤S};
+\Agda{BrouwerOrdinals.Epsilon0}{one-≤-ω\^{}}, \texttt{x-≤-x⊗},
+\texttt{y-≤-⊗}; \Agda{BrouwerOrdinals.MoveTuple}{dup-ω};
+\Agda{BrouwerOrdinals.Absorb}{\_⋖\_}, \texttt{⋖-base}, \texttt{⋖-⊕},
+\texttt{ι⊗ω\^{}}, \texttt{⋖-⊗}, \texttt{⋖-⊗ω}, \texttt{⋖-ω};
+\Agda{BrouwerOrdinals.MultAffine}{dbl-ω\^{}}, \texttt{crux},
+\texttt{orbit-inv}, \texttt{pw-ω\^{}};
+\Agda{BrouwerOrdinals.Move}{padMove}, \texttt{move-orbit}.}
+\end{lemma}
+
+\begin{proof}
+Part~(\labelcref{item:exp-law}) is
+\cref{lem:exp}(\labelcref{item:exp-hom},\labelcref{item:exp-pos}). For
+(\labelcref{item:mult-incr}), $x = x \btimes \num 1 = \num 1 \btimes
+x$ by~\cref{lem:mult}(\labelcref{item:one-unit}), and multiplication
+is monotone in each argument. For
+(\labelcref{item:double}), $x \bplus x = x \btimes \num 2 \le
+x \btimes \omega$, and $\num 1 \bplus x \le \bS x$ is an induction
+on~$x$.
+
+For (\labelcref{item:multiple}), a code below~$M$ is below
+$M \btimes \num 1$, and sums are handled by left distributivity,
+$M \btimes \num k \bplus M \btimes \num l = M \btimes \num{k+l}$. The
+three inequalities follow from $x \le M \btimes \num n$ by
+associativity of multiplication and three facts about a
+numeral~$\num n$: $\num n \le \omega$; $\num n \btimes \omega \le
+\omega$, because each $\num n \btimes \num j$ is a numeral; and
+$\num n \btimes \omega^{e} \le \omega^{\bS e}$, by induction on~$e$.
+In this last induction, at $e = \bZ$ the inequality reads
+$\num n \btimes \num 1 = \num n \le \omega = \omega^{\num 1}$,
+by~\cref{lem:mult}(\labelcref{item:one-unit})
+and~\cref{lem:exp}(\labelcref{item:exp-hom}). At a successor,
+\[
+  \num n \btimes \omega^{\bS e}
+  = (\num n \btimes \omega^{e}) \btimes \omega
+  \le \omega^{\bS e} \btimes \omega = \omega^{\bS\bS e} ,
+\]
+by associativity of multiplication, the induction hypothesis and
+monotonicity of multiplication on the left. At a limit
+$e = \bL f$, the left-hand side is the limit
+\[
+  \num n \btimes \omega^{\bL f}
+  = \bL\big(k \mapsto \num n \btimes \omega^{f\,k}\big) ,
+\]
+and each of its members is below the right-hand side,
+\[
+  \num n \btimes \omega^{f\,k} \le \omega^{\bS(f\,k)}
+  = \omega^{f\,k} \btimes \omega
+  \le \omega^{\bL f} \btimes \omega = \omega^{\bS\bL f} ,
+\]
+by the induction hypothesis at $f\,k$, by the cocone
+$\omega^{f\,k} \le \bL(j \mapsto \omega^{f\,j}) = \omega^{\bL f}$ and
+by monotonicity of multiplication on the left, so that the limit rule
+applies.
+
+For (\labelcref{item:iterate}), write $N = \omega^{s \btimes \omega}$.
+Doubling is absorbed by~$N$, that is $\num 2 \btimes N \le N$, because
+$N$ is the limit of the codes $\omega^{s \btimes \num k}$ and
+\[
+  \num 2 \btimes \omega^{s \btimes \num k}
+  \le \omega \btimes \omega^{s \btimes \num k}
+  = \omega^{\num 1 \bplus s \btimes \num k}
+  \le \omega^{s \btimes \num{k+1}}
+\]
+by $\num 2 \le \omega$ and monotonicity, by (\labelcref{item:exp-law}),
+by (\labelcref{item:double}) and by $\num 1 \le s$. Hence $c \le Y$
+implies
+$(Y \bplus c) \btimes N \le (Y \btimes \num 2) \btimes N \le
+Y \btimes N$. Writing $N^{0} = \num 1$ and
+$N^{k+1} = N^{k} \btimes N$, the $k$-th iterate is then below
+$(a \bplus c) \btimes N^{k}$, by induction on~$k$, since at each step
+$c$ is below $(a \bplus c) \btimes N^{k}$. Finally
+$N^{k} \le \omega^{(s \btimes \omega) \btimes \num k} \le
+\omega^{(s \btimes \omega) \btimes \omega}$ by
+(\labelcref{item:exp-law}) and monotonicity.
 \end{proof}
 
 \begin{definition}[The height of a dialogue tree]
@@ -788,8 +1210,8 @@ the form $\Mj(t) < \eps$ for every closed term $t$ of~$\TmO\gr$.
 
 We define the data and their grading, the scalar maps between them
 whose exponents are again maps, and the rectangular maps between data
-of any two widths, with the four facts about them that the induction
-on terms uses.
+of any two widths with the operations on them, and we prove the
+calculus of these maps that the induction on terms uses.
 
 \subsection{Data and their grading}
 \label{sec:data}
@@ -842,9 +1264,12 @@ action on a datum of width~$k$ is defined by
 \]
 so that it reads the whole datum in its base and only the tail in its
 exponent, the exponent being again a cascade. A cascade is
-\emph{small} when each of its codes is below~$\eps$.
+\emph{small} when each of its codes is below~$\eps$. A cascade of
+width~$k$ and a tuple of width $k+1$ hold the same codes, and we read
+each as the other without further notice.
 \AgdaRefs{\Agda{BrouwerOrdinals.Cascade}{Sc}; \texttt{valSc},
-\texttt{ScAll<}.}
+\texttt{ScAll<}; \Agda{BrouwerOrdinals.CascadeLevel}{tupToSc},
+\texttt{scToTup}.}
 \end{definition}
 
 \begin{remark}
@@ -865,15 +1290,122 @@ every grade by one successor on the grade above.
 
 \begin{lemma}
 \label{lem:cascade-basic}
-A small cascade takes a small datum to a code below~$\eps$, it is
-monotone in the datum, its value at a datum is above the first entry
-of the datum and above its own first code, and the sum of the values
-of two cascades at one datum is below the value of a single cascade
-there.
+A small cascade takes a small datum to a code below~$\eps$. The value
+of a cascade is monotone in the datum and in the codes of the
+cascade, and the value of a cascade of positive width at a datum is
+above the first entry of the datum and above the first code of the
+cascade.
 \AgdaRefs{\Agda{BrouwerOrdinals.Cascade}{valSc-<-ε₀};
-\texttt{valSc-mono},
-\texttt{valSc-join}, \texttt{valSc-increasing}, \texttt{valSc-const}.}
+\texttt{valSc-mono}, \texttt{valSc-increasing}, \texttt{valSc-const};
+\Agda{BrouwerOrdinals.CascadeLevel}{valSc-⊑}.}
 \end{lemma}
+
+\begin{proof}
+By induction on the width. The first part follows
+from~\cref{prop:closure} and the second from monotonicity of addition,
+multiplication and exponentiation. For the third, the base
+$(a \bplus \tsum t) \bplus c$ is above $a$ and above~$c$, and the
+multiplier $\omega^{\act E t}$ is at least~$\num 1$, so
+\cref{lem:absorb}(\labelcref{item:exp-law},\labelcref{item:mult-incr})
+applies.
+\end{proof}
+
+\begin{definition}[Operations on cascades]
+\label{def:cascade-ops}
+For cascades $E$, $E_1$ and $E_2$ of width~$k$ we define three
+cascades of width~$k$ by recursion on~$k$. The successor $E^{+}$
+takes the successor of every code, the join $E_1 \vee E_2$ adds the
+codes of the first grade and joins the rest with one successor, and
+the bump $E^{\times}$ multiplies a constant by~$\omega$ and takes the
+successor of an exponent:
+\begin{align*}
+  c^{+} &= \bS c , &
+  (c, E)^{+} &= (\bS c, E^{+}) , \\
+  c_1 \vee c_2 &= c_1 \bplus c_2 , &
+  (c_1, E_1) \vee (c_2, E_2)
+    &= (c_1 \bplus c_2, (E_1 \vee E_2)^{+}) , \\
+  c^{\times} &= c \btimes \omega , &
+  (c, E)^{\times} &= (c, E^{+}) .
+\end{align*}
+The widening of~$E$ is the cascade $(\num 1, E)$ of width $k+1$, and
+the zero cascade~$0$ is the cascade whose codes are all~$\bZ$.
+\AgdaRefs{\Agda{BrouwerOrdinals.Cascade}{sucSc}; \texttt{joinSc},
+\texttt{bumpSc}, \texttt{upSc}, \texttt{zeroSc}.}
+\end{definition}
+
+\begin{lemma}[The operations on cascades]
+\label{lem:cascade-ops}
+Let $E$, $E_1$ and $E_2$ be cascades of width~$k$, let $t$ be a datum
+of width~$k$, and let $a$ and $v$ be codes.
+\begin{enumerate}
+\item\label{item:suc}
+  $\bS(\act E t) \le \act{E^{+}}{t}$.
+\item\label{item:join}
+  $\act{E_1}{t} \bplus \act{E_2}{t} \le \act{(E_1 \vee E_2)}{t}$.
+\item\label{item:bump}
+  $\act E t \btimes \omega \le \act{E^{\times}}{t}$.
+\item\label{item:up}
+  $\act E t \le \act{(\num 1, E)}{(a,t)}$.
+\item\label{item:fold}
+  For the cascade $(c, E)$ of width $k+1$ and the datum $(a,t)$,
+  \[
+    \act{(c,E)}{(a,t)} \bplus v \le \act{(c \bplus v, E^{+})}{(a,t)} .
+  \]
+\end{enumerate}
+The successor, the join, the bump and the widening take small cascades
+to small cascades, and the zero cascade is small.
+\AgdaRefs{\Agda{BrouwerOrdinals.Cascade}{valSc-suc}; \texttt{valSc-join},
+\texttt{valSc-bump}, \texttt{valSc-up}, \texttt{sucSc-All<},
+\texttt{joinSc-All<}, \texttt{bumpSc-All<}, \texttt{upSc-All<},
+\texttt{zeroSc-All<}; \Agda{BrouwerOrdinals.RectAdd}{valSc-fold}.}
+\end{lemma}
+
+\begin{proof}
+Part~(\labelcref{item:up}) holds because
+$\act E t \le \omega^{\act E t} \le ((a \bplus \tsum t) \bplus \num 1)
+\btimes \omega^{\act E t}$, by \cref{lem:exp}(\labelcref{item:exp-incr})
+and \cref{lem:absorb}(\labelcref{item:mult-incr}). The other parts are
+inductions on~$k$, and at width~$0$ the first three are equalities.
+At width $k+1$, write the datum as $(a,t)$, put $s = a \bplus \tsum t$,
+and write $X$, $X_1$ and $X_2$ for the values at~$t$ of the exponents
+of $E = (c, E')$, $E_1 = (c_1, E_1')$ and $E_2 = (c_2, E_2')$.
+
+For~(\labelcref{item:suc}), let $V = \bS(s \bplus c) \btimes \omega^{X}$.
+Then $(s \bplus c) \btimes \omega^{X} \le V$ and $\num 1 \le V$, so
+\[
+  \bS\big((s \bplus c) \btimes \omega^{X}\big)
+  \le \bS V \le V \bplus V \le V \btimes \omega
+  = \bS(s \bplus c) \btimes \omega^{\bS X}
+\]
+by~\cref{lem:add}(\labelcref{item:add-mono}), since $\bS V = V \bplus
+\num 1$, and
+\cref{lem:absorb}(\labelcref{item:double},\labelcref{item:exp-law}),
+and $\bS X$ is below the value of $E'^{+}$
+at~$t$ by induction, while $\bS(s \bplus c) = s \bplus \bS c$ is the
+base of~$E^{+}$.
+
+For~(\labelcref{item:join}), let
+$W = (s \bplus (c_1 \bplus c_2)) \btimes \omega^{X_1 \bplus X_2}$. Both
+values are below~$W$, so their sum is below
+$W \bplus W \le W \btimes \omega
+ = (s \bplus (c_1 \bplus c_2)) \btimes \omega^{\bS(X_1 \bplus X_2)}$,
+and $\bS(X_1 \bplus X_2)$ is below the value of
+$(E_1' \vee E_2')^{+}$ at~$t$ by induction
+and~(\labelcref{item:suc}).
+
+For~(\labelcref{item:bump}),
+$\big((s \bplus c) \btimes \omega^{X}\big) \btimes \omega
+ = (s \bplus c) \btimes \omega^{\bS X}$, and (\labelcref{item:suc})
+applies to the exponent.
+
+For~(\labelcref{item:fold}), where now $X = \act E t$, the code
+$Q = (s \bplus (c \bplus v)) \btimes \omega^{X}$ is above the value
+of $(c, E)$ at $(a,t)$ and above~$v$, so the sum is below
+$Q \bplus Q \le Q \btimes \omega
+ = (s \bplus (c \bplus v)) \btimes \omega^{\bS X}$, and
+(\labelcref{item:suc}) applies to the exponent. Smallness is preserved
+by~\cref{prop:closure}.
+\end{proof}
 
 \subsection{Rectangular maps}
 \label{sec:rect}
@@ -890,28 +1422,146 @@ the first component being a cascade on the whole input and the rest a
 graded map applied to the tail. The datum of such a map is held as the
 triangular array it is, one cascade per output order, each shorter
 than the last, and a bare constant once the input orders are
-exhausted.
+exhausted, so that a graded map from width~$0$ is a tuple of
+constants. For a graded map $F = (E, F')$ from a positive width we
+call $E$ its cascade of order~$0$ and $F'$ its tail. A graded map is
+\emph{small} when its codes are below~$\eps$. For graded maps $F$
+and~$G$ of the same widths we write $F \tle G$ when each code of~$F$
+is below the corresponding code of~$G$, and then
+$\act F x \tle \act G x$ for every datum~$x$.
 \AgdaRefs{\Agda{BrouwerOrdinals.Rect}{RD}; \texttt{rect},
 \texttt{RDAll<},
-\texttt{rect-All<}, \texttt{rect-increasing}.}
+\texttt{rect-All<}, \texttt{rect-increasing}, \texttt{\_⊑RD\_},
+\texttt{rect-⊑RD}.}
 \end{definition}
 
 For the datum of a map to be a datum in its turn it has to be a tuple
-as well. Writing $\W(p,q) = \max(p+1,q)$, a tuple $d$ of width
-$\W(p,q)$ is read as a graded map $\rd d$ from width~$p$ to
-width~$q$, the cascade for output order~$j$ being the suffix of the
-tuple from~$j$. The sharing of entries is what makes the datum of a
-map fit into a width one more than that of the input and no more than
-that of the output.
-\AgdaRefs{\Agda{BrouwerOrdinals.Rect}{WD}; \texttt{rdOf},
+as well. Writing $\W(p,q) = \max(p+1,q)$, a tuple
+$d = (d_0, \ldots, d_{\W(p,q)-1})$ is read as a graded map $\rd d$
+from width~$p$ to width~$q$, as follows. For an output order
+$j \le p$ the cascade is $(d_j, \ldots, d_p)$, the entries of~$d$ of
+orders $j$ to~$p$, which is a cascade of width $p-j$, and for
+$p \le j < q$ it is the constant~$d_j$, the two clauses agreeing at
+$j = p$. Equivalently, for positive $p$ and~$q$ the cascade of
+order~$0$ of $\rd d$ is read off the first $p+1$ entries of~$d$ and
+the tail of $\rd d$ is $\rd{d'}$ for the tail $d'$ of~$d$, since
+$\W(p,q) = 1 + \W(p-1,q-1)$. The entries of orders up to~$p$ are
+shared between output orders, which is what makes the datum of a map
+fit into a width one more than that of the input, and the entries
+above order~$p$ are read as constants only, which is what makes it
+fit into the width of the output. The reading is monotone:
+$d \tle d'$ implies $\rd d \tle \rd{d'}$.
+\AgdaRefs{\Agda{BrouwerOrdinals.Rect}{WD}; \texttt{rdOf}, \texttt{pre},
 \texttt{rdOf-All<}, \texttt{rdOf-mono}.}
+
+\begin{definition}[Operations on graded maps]
+\label{def:rect-ops}
+Let $F$ and $G$ be graded maps from width~$p$ to width~$q$.
+\begin{enumerate}
+\item The zero map $\mathrm{zero}$ has every cascade the zero
+  cascade.
+\item The join $F \vee G$ joins the cascades of $F$ and~$G$ order by
+  order, constants being added.
+\item The sum $\tsum F$ is the cascade of width~$p$ defined by
+  $\tsum (E, F') = E \vee (\num 1, \tsum F')$ for $p$ and $q$
+  positive, as the sum of the constants for $p = 0$, and as the zero
+  cascade for $q = 0$.
+\item The cut, to width~$q$, of a map to width $\max(q,q')$ keeps its
+  first~$q$ output orders, and the widening, to width $\max(q,q')$, of
+  a map to width~$q$ adds zero cascades at the new output orders.
+\item The flattening of~$F$ is the tuple $\flat F$ of width
+  $\W(p,q)$ defined as follows. For $p$ and $q$ positive and
+  $F = ((c, E'), F')$, it is $c$ followed by $\flat F'$ with the $p$
+  codes of~$E'$ added slotwise into its first $p$ entries. For $p = 0$
+  it is the tuple of constants, and for $q = 0$ the zero tuple of
+  width $p+1$.
+\item For $p$ positive and $F = (E, F')$, the translation of~$F$ is
+  the map $F^{\dagger} = (E \vee 0, F'^{+})$, where $F'^{+}$ takes
+  the successor of every cascade and every constant of~$F'$.
+\end{enumerate}
+For a datum $t = (t_0, t')$ and a code~$v$ we write
+$t^{+v} = (t_0 \bplus v, t'^{+})$, where $t'^{+}$ takes the successor
+of every entry.
+\AgdaRefs{\Agda{BrouwerOrdinals.RectAlgebra}{zeroRD}; \texttt{joinRD},
+\texttt{padRD}, \texttt{flatRD}, \texttt{addRDc};
+\Agda{BrouwerOrdinals.RectSum}{sumRD};
+\Agda{BrouwerOrdinals.RectApply}{preRD};
+\Agda{BrouwerOrdinals.RectAdd}{sucRD}, \texttt{addν}.}
+\end{definition}
+
+\begin{lemma}[The operations on graded maps]
+\label{lem:rect-ops}
+Let $F$ and $G$ be graded maps from width~$p$ to width~$q$, and let
+$x$ be a datum of width~$p$.
+\begin{enumerate}
+\item\label{item:rjoin}
+  $F \tle F \vee G$ and $G \tle F \vee G$.
+\item\label{item:rsum}
+  $\tsum(\act F x) \le \act{(\tsum F)}{x}$.
+\item\label{item:rcut}
+  The cut of the widening of a map is the map itself, and the action
+  of the cut of a map is the corresponding prefix of the action of the
+  map.
+\item\label{item:rflat}
+  $F \tle \rd{\flat F}$.
+\item\label{item:rtrans}
+  If $p$ is positive and $v$ is below the first entry of~$x$, then
+  $(\act F x)^{+v} \tle \act{F^{\dagger}}{x}$.
+\item\label{item:rread}
+  For a tuple $d$ of width $\W(p,q)$ and positive~$q$,
+  $(\act{\rd d}{x})^{+v} \tle \act{\rd{d^{+v}}}{x}$.
+\end{enumerate}
+Each of the operations takes small maps to small maps, and the zero
+map is small.
+\AgdaRefs{\Agda{BrouwerOrdinals.RectAlgebra}{joinRD-left};
+\texttt{joinRD-right}, \texttt{rect-padRD}, \texttt{flatRD-⊒},
+\texttt{rect-addνc}, \texttt{zeroRD-All<}, \texttt{joinRD-All<},
+\texttt{padRD-All<}, \texttt{flatRD-All<}, \texttt{addRDc-All<};
+\Agda{BrouwerOrdinals.RectSum}{tsum-rect}, \texttt{sumRD-All<};
+\Agda{BrouwerOrdinals.RectApply}{rect-preRD}, \texttt{preRD-All<};
+\Agda{BrouwerOrdinals.RectAdd}{rect-sucRD}, \texttt{rect-addν}.}
+\end{lemma}
+
+\begin{proof}
+Part~(\labelcref{item:rjoin}) holds code by code, since $c_1$ and
+$c_2$ are below $c_1 \bplus c_2$ and a code is below its successor.
+Part~(\labelcref{item:rsum}) is an induction on the widths: with
+$x = (a,t)$,
+$\tsum(\act F x) = \act E x \bplus \tsum(\act{F'}{t})$, and
+$\tsum(\act{F'}{t}) \le \act{(\tsum F')}{t} \le
+\act{(\num 1, \tsum F')}{x}$ by induction and
+\cref{lem:cascade-ops}(\labelcref{item:up}), so
+\cref{lem:cascade-ops}(\labelcref{item:join}) applies.
+Part~(\labelcref{item:rcut}) is immediate from the definitions. For
+(\labelcref{item:rflat}), the cascade of order~$0$ of $\rd{\flat F}$
+is read off the first $p+1$ entries of $\flat F$, which are $c$
+followed by codes above those of~$E'$, and the tail of $\rd{\flat F}$
+is read off a tuple above $\flat F'$, so induction and monotonicity of
+the reading apply. For (\labelcref{item:rtrans}), at order~$0$ we have
+$\act E x \bplus v \le \act E x \bplus \act 0 x \le
+\act{(E \vee 0)}{x}$, since $v$ is below the first entry of~$x$,
+which is below $\act 0 x$ by~\cref{lem:cascade-basic}, and at the
+orders above \cref{lem:cascade-ops}(\labelcref{item:suc}) applies to
+each cascade. For (\labelcref{item:rread}), the cascade of order~$0$
+of $\rd{d^{+v}}$ is $(d_0 \bplus v, E^{+})$ when that of $\rd d$ is
+$(d_0, E)$, so \cref{lem:cascade-ops}(\labelcref{item:fold}) applies
+at order~$0$ for positive~$p$, the case $p = 0$ being an equality, and
+the cascades of the orders above are those of $\rd d$ with a successor
+on every code, so that \cref{lem:cascade-ops}(\labelcref{item:suc})
+applies. Smallness is preserved by~\cref{prop:closure}
+and~\cref{lem:cascade-ops}.
+\end{proof}
+
+\subsection{The calculus}
+\label{sec:calculus}
 
 \begin{lemma}[The calculus]
 \label{lem:calculus}
 Graded maps support application, abstraction, projection and
-iteration. Write
-$y \sqcup x$ for the combination of a datum $y$ of width~$p$ with a
-datum $x$ of width~$n$ into one of width $\max(p,n)$ containing both.
+iteration. For a datum $y$ of width~$p$ and a datum $x$ of width~$n$,
+write $y \sqcup x$ for their slotwise sum, the datum of width
+$\max(p,n)$ whose entry of order~$i$ is $y_i \bplus x_i$ when both
+entries exist and the entry that exists otherwise.
 \begin{enumerate}
 \item\label{item:apply}
   Application. For maps $F$ from width~$m$ to width $\W(p,q)$ and $G$
@@ -950,24 +1600,211 @@ datum $x$ of width~$n$ into one of width $\max(p,n)$ containing both.
 In each case the resulting map is small when the given ones are.
 \AgdaRefs{\Agda{BrouwerOrdinals.RectApply}{rect-ssub}; \texttt{sh},
 \texttt{sh-All<}; \Agda{BrouwerOrdinals.RectCurry}{rect-curry},
-\texttt{curryD}, \texttt{cmb};
+\texttt{curryD}, \texttt{curryD-All<}, \texttt{cmb};
 \Agda{BrouwerOrdinals.RectAlgebra}{rect-⊴}, \texttt{zeroRD},
 \texttt{flatRD}; \Agda{BrouwerOrdinals.RectOrbitAct}{rorbit-act},
 \texttt{rorbitD}.}
 \end{lemma}
 
+\begin{proof}
+We prove projection first, then application, abstraction and
+iteration, each of the last three using the ones before it.
+
+Projection. The entry of order~$i$ of $\act{\mathrm{zero}}{u}$ is the
+value of the zero cascade at the suffix of~$u$ from~$i$, which is
+above~$u_i$ by~\cref{lem:cascade-basic}, and $u_i$ is above~$t_i$.
+
+Application. We first treat a single output order. For maps $F$ from
+width~$m$ to width $p+1$ and $G$ from width~$m$ to width~$p$ we
+construct a cascade $A(F,G)$ of width~$m$ such that, for every
+datum~$x$ of width~$m$, the tuple $\act F x$, read as a cascade of
+width~$p$, takes $\act G x$ to a code below $\act{A(F,G)}{x}$. If
+$p = 0$, the cascade read off $\act F x$ is its single entry, which is
+the value at~$x$ of the cascade of order~$0$ of~$F$, and $A(F,G)$ is
+that cascade. If $m = 0$, the maps are constant, and $A(F,G)$ is the
+code obtained. If $m$ and~$p$ are positive, write $x = (a,t)$,
+$F = (E_F, F')$ and $G = (E_G, G')$, so that
+$\act F x = (\act{E_F}{x}, \act{F'}{t})$ and
+$\act G x = (\act{E_G}{x}, \act{G'}{t})$. The code to be bounded is
+\[
+  \big((\act{E_G}{x} \bplus \tsum(\act{G'}{t})) \bplus
+  \act{E_F}{x}\big) \btimes \omega^{X} ,
+\]
+where $X$ is the value at $\act{G'}{t}$ of the tuple $\act{F'}{t}$
+read as a cascade, so that $X \le \act{A(F',G')}{t}$ by induction. The
+sum $\tsum(\act{G'}{t})$ is below $\tsum(\act G x)$, hence below
+$\act{(\tsum G)}{x}$ by~\cref{lem:rect-ops}, and
+\cref{lem:cascade-ops}(\labelcref{item:join}) puts the base below
+$\act J x$ for the cascade $J = (E_G \vee \tsum G) \vee E_F$. Writing
+$J = (c_J, E_J)$ and $s = a \bplus \tsum t$, the code is therefore
+below
+\[
+  \act J x \btimes \omega^{\act{A(F',G')}{t}}
+  = (s \bplus c_J) \btimes
+    \omega^{\act{E_J}{t} \bplus \act{A(F',G')}{t}}
+  \le (s \bplus c_J) \btimes
+    \omega^{\act{(E_J \vee A(F',G'))}{t}}
+\]
+by \cref{lem:absorb}(\labelcref{item:exp-law}) and
+\cref{lem:cascade-ops}(\labelcref{item:join}), and we put
+$A(F,G) = (c_J, E_J \vee A(F',G'))$.
+
+Now let $F$ go from width~$m$ to width $\W(p,q)$ and $G$ from
+width~$m$ to width~$p$. If $q = 0$ there is nothing to prove. If
+$p = 0$, the map $\rd{\act F x}$ consists of the constants
+$\act F x$, and $F \cdot G = F$. Otherwise the output of order~$0$
+of $\rd{\act F x}$ at $\act G x$ is the value at $\act G x$ of the
+first $p+1$ entries of $\act F x$, read as a cascade. Those entries
+are $\act{F_0}{x}$ for the cut $F_0$ of~$F$ to width $p+1$,
+by~\cref{lem:rect-ops}(\labelcref{item:rcut}), so this output is
+below $\act{A(F_0,G)}{x}$. The outputs of the orders above are
+$\rd{\act{F'}{t}}$ at $\act{G'}{t}$, where $F'$ and~$G'$ are the
+tails of $F$ and~$G$, of widths $\W(p-1,q-1)$ and $p-1$, and $t$ is
+the tail of~$x$, or the empty datum when $m = 0$. We put
+$F \cdot G = (A(F_0,G), F' \cdot G')$ and conclude by induction.
+
+Abstraction. Again we first treat a single output order. For a
+cascade~$E$ of width $\max(p,n)$ we construct a map $\Lambda_0 E$ from
+width~$n$ to width $p+1$ such that, for all $y$ of width~$p$ and $x$
+of width~$n$, the tuple $\act{(\Lambda_0 E)}{x}$, read as a cascade of
+width~$p$, takes~$y$ to a code above
+$\bS(\act{E}{y \sqcup x}) \btimes \omega$. If $p = 0$, then
+$y \sqcup x = x$, and $\Lambda_0 E$ is the map with the single
+cascade $(E^{+})^{\times}$; by
+\cref{lem:cascade-ops}(\labelcref{item:suc},\labelcref{item:bump}),
+$\bS(\act E x) \btimes \omega \le \act{E^{+}}{x} \btimes \omega \le
+\act{(E^{+})^{\times}}{x}$. If $n = 0$, then $y \sqcup x = y$, and
+$\Lambda_0 E$ is the constant map with output the tuple
+$(E^{+})^{\times}$, by the same inequality. If $p$ and~$n$ are
+positive, write $E = (c, E')$, $y = (y_0, y')$ and $x = (x_0, x')$,
+and let $\Lambda_0 E = ((\bS c, 0), \Lambda_0 E')$, whose cascade of
+order~$0$ is $(\bS c, 0)$. Put
+\begin{align*}
+  A_0 &= \act{(\bS c, 0)}{x} , &
+  b_R &= (y_0 \bplus \tsum y') \bplus A_0 , \\
+  & &
+  b_L &= ((y_0 \bplus x_0) \bplus \tsum(y' \sqcup x')) \bplus c ,
+\end{align*}
+let $X_L = \act{E'}{y' \sqcup x'}$, and let $X_R$ be the value at~$y'$
+of the tuple $\act{(\Lambda_0 E')}{x'}$ read as a cascade. Then
+$\act{E}{y \sqcup x} = b_L \btimes \omega^{X_L}$, the code to be
+bounded from below is $b_R \btimes \omega^{X_R}$, and
+$\bS(X_L) \btimes \omega \le X_R$ by induction. The code~$A_0$ is
+above its base $(x_0 \bplus \tsum x') \bplus \bS c$, so the codes
+$x_0$, $\tsum x'$, $c$ and~$\num 1$ are below $A_0$, hence below
+$b_R$, and so are $y_0$ and~$\tsum y'$. Each entry of $y' \sqcup x'$
+is an entry of~$y'$, an entry of~$x'$ or the sum of one of each, so
+by~\cref{lem:absorb}(\labelcref{item:multiple}) the sum
+$\tsum(y' \sqcup x')$ and then $b_L$ are below a finite multiple
+of~$b_R$, and
+\[
+  \act{E}{y \sqcup x} = b_L \btimes \omega^{X_L}
+  \le b_R \btimes \omega^{\bS X_L} = Y .
+\]
+Since $\num 1 \le b_R \le Y$, the code $\bS(\act{E}{y \sqcup x})$ is
+below a finite multiple of~$Y$, so that
+$\bS(\act{E}{y \sqcup x}) \btimes \omega \le Y \btimes \omega =
+b_R \btimes \omega^{\bS\bS X_L}$ by
+\cref{lem:absorb}(\labelcref{item:multiple},\labelcref{item:exp-law}).
+Finally $\bS\bS X_L$ is below a finite multiple of $\bS X_L$, hence
+below $(\bS X_L) \btimes \omega \le X_R$.
+
+Now let $D$ go from width $\max(p,n)$ to width~$q$. If $q = 0$,
+$\Lambda D$ is the zero map. If $p = 0$, then $\Lambda D = D$, since
+$y$ is empty and $\rd{\act D x}$ consists of the constants
+$\act D x$. If $n = 0$, then $\Lambda D$ is the constant map with
+output $\flat D$, and \cref{lem:rect-ops}(\labelcref{item:rflat})
+applies. If $p$, $n$ and~$q$ are positive, write $D = (E, D')$, with
+$E$ of width $\max(p,n)$ and $D'$ from width $\max(p-1,n-1)$ to width
+$q-1$, and let $\Lambda D$ be the join of the widening of
+$\Lambda_0 E$ to width $\W(p,q)$ with the map whose cascade of
+order~$0$ is the zero cascade and whose tail is $\Lambda D'$. At
+order~$0$, the code $\act{E}{y \sqcup x}$ is below
+$\bS(\act{E}{y \sqcup x}) \btimes \omega$, hence below the value at~$y$
+of $\act{(\Lambda_0 E)}{x}$, and $\act{(\Lambda_0 E)}{x}$ is below the
+first $p+1$ entries of $\act{(\Lambda D)}{x}$, by
+\cref{lem:rect-ops}(\labelcref{item:rjoin},\labelcref{item:rcut});
+those entries are what the cascade of order~$0$ of
+$\rd{\act{(\Lambda D)}{x}}$ is read off, and the value of a cascade is
+monotone in its codes. At the orders above,
+$\act{D'}{y' \sqcup x'} \tle \act{\rd{\act{(\Lambda D')}{x'}}}{y'}$
+by induction, and $\act{(\Lambda D')}{x'}$ is below the tail of
+$\act{(\Lambda D)}{x}$ by
+\cref{lem:rect-ops}(\labelcref{item:rjoin}), so monotonicity of the
+reading concludes.
+
+Iteration. By induction on~$n$. If $p = 0$ there is nothing to prove,
+and $p \le n$ since $x \tsub u$, so we may take $n$ and~$p$ positive.
+Write $u = (u_0, u')$, $x = (a, t)$ and $e = (e_0, e')$, and let
+$E = (e_0, e')$ be the cascade of order~$0$ of~$\rd e$, which is read
+off all $p+1$ entries of~$e$. The tail of $\rd e$ is $\rd{e'}$, a map
+from width $p-1$ to itself, so the tail of the $j$-th iterate of
+$\rd e$ at~$x$ is the $j$-th iterate of $\rd{e'}$ at~$t$. Since
+$e' \tsub u'$ and $t \tsub u'$, the induction hypothesis gives a map
+$R'$ from width $n-1$ to width $p-1$, depending on $n-1$ and $p-1$
+alone, with all these tails below $D_t = \act{R'}{u'}$. Put
+$T = \tsum D_t$ and $X = \act{e'}{D_t}$, the tuple $e'$ being read as
+a cascade. The head $h_j$ of the $j$-th iterate satisfies $h_0 = a$
+and
+\[
+  h_{j+1} = \big((h_j \bplus \tsum t_j) \bplus e_0\big) \btimes
+    \omega^{\act{e'}{t_j}}
+  \le \big(h_j \bplus (T \bplus e_0)\big) \btimes
+    \omega^{(\bS X) \btimes \omega} ,
+\]
+where $t_j$ is the tail of the $j$-th iterate, by monotonicity,
+associativity of addition and $X \le (\bS X) \btimes \omega$. By
+\cref{lem:absorb}(\labelcref{item:iterate}) with $s = \bS X$, and
+monotonicity of the map iterated there,
+\[
+  h_j \le \big(a \bplus (T \bplus e_0)\big) \btimes \omega^{B}
+  \quad \text{for every } j, \qquad
+  B = ((\bS X) \btimes \omega) \btimes \omega .
+\]
+It remains to put this code below the value at~$u$ of a cascade that
+depends on $n$ and~$p$ alone. Let
+$A' = (u_0 \bplus \tsum u') \bplus \num 1$, let
+$V_T = \act{(\tsum R')}{u'}$, which is above~$T$
+by~\cref{lem:rect-ops}(\labelcref{item:rsum}), and let
+$M = A' \btimes \omega^{V_T}$. The codes $a$ and~$e_0$ are below
+$u_0$, hence below $A'$ and below~$M$, and $T \le V_T \le \omega^{V_T}
+\le M$, so $a \bplus (T \bplus e_0)$ is below a finite multiple
+of~$M$, and \cref{lem:absorb}(\labelcref{item:multiple},%
+\labelcref{item:exp-law}) gives
+\[
+  \big(a \bplus (T \bplus e_0)\big) \btimes \omega^{B}
+  \le M \btimes \omega^{\bS B}
+  = A' \btimes \omega^{V_T \bplus \bS B} .
+\]
+Since $e' \tsub u'$, projection gives $e' \tle \act{\mathrm{zero}}{u'}$
+for the zero map from width $n-1$ to width~$p$, and the first step of
+application gives $X \le \act{A(\mathrm{zero}, R')}{u'}$, since $X$ is
+below the value at $D_t$ of $\act{\mathrm{zero}}{u'}$ read as a
+cascade, by monotonicity of the value in the codes,
+\cref{lem:cascade-basic}. Applying
+\cref{lem:cascade-ops}(\labelcref{item:suc},\labelcref{item:bump})
+four times,
+$\bS B \le \act{O_B}{u'}$ for the cascade
+$O_B = (((A(\mathrm{zero}, R')^{+})^{\times})^{\times})^{+}$, and so
+$V_T \bplus \bS B \le \act{O}{u'}$ for $O = \tsum R' \vee O_B$.
+Therefore $h_j \le A' \btimes \omega^{\act O {u'}} =
+\act{(\num 1, O)}{u}$ for every~$j$, and we put
+$R = ((\num 1, O), R')$. The tails of the iterates are below
+$\act{R'}{u'}$, which is the tail of $\act R u$.
+
+Each construction preserves smallness,
+by~\cref{lem:cascade-ops,lem:rect-ops}.
+\AgdaRefs{\Agda{BrouwerOrdinals.RectApply}{ssh}; \texttt{valSc-ssh},
+\texttt{ssh-All<}, \texttt{rect-preRD};
+\Agda{BrouwerOrdinals.RectCurry}{scurryD}, \texttt{valSc-scurry},
+\texttt{tsum-cmb-⋖}, \texttt{scurryD-All<};
+\Agda{BrouwerOrdinals.RectOrbitAct}{rtail-iter}, \texttt{orbEI},
+\texttt{orbEI-All<}, \texttt{rorbitD-All<}.}
+\end{proof}
+
 Part~(\labelcref{item:orbit}) is what makes the bound on the recursor
 a datum rather than an existential tuple, since the bound on the
-iterates is produced once and for all from the context. The remaining
-operations on these maps, the zero map, the join, the widening, the
-flattening of a map into a tuple, the sum of the entries of a map and
-the translation that the recursor applies after a supremum, are
-routine and are collected in the formalization.
-\AgdaRefs{\Agda{BrouwerOrdinals.RectAlgebra}{joinRD}; \texttt{padRD},
-\texttt{addRDc}, \texttt{rect-addνc};
-\Agda{BrouwerOrdinals.RectSum}{sumRD}, \texttt{tsum-rect};
-\Agda{BrouwerOrdinals.RectAdd}{addν}, \texttt{rect-addν};
-\Agda{BrouwerOrdinals.Absorb}{ι⊗ω\^{}}.}
+iterates is produced once and for all from the context.
 
 \section{The bound on the majorant}
 \label{sec:bound}
@@ -993,9 +1830,9 @@ A datum $d$ of width $\dwd(\sigma)$ \emph{dominates} a majorant $x$ of
 type~$\sigma$, written $x \dom_{\sigma} d$, by recursion on the type:
 at the ground type $a \dom_{\gr} d$ means $a \le \tsum d$, and
 $F \dom_{\sigma\arr\tau} d$ means that
-$x \dom_{\sigma} e$ implies $F\,x \dom_{\tau} \act{d}{e}$ for every
-small~$e$, where $d$ is read as a graded map from width $\dwd(\sigma)$
-to width $\dwd(\tau)$.
+$x \dom_{\sigma} e$ implies $F\,x \dom_{\tau} \act{\rd d}{e}$ for
+every small~$e$, where $\rd d$ is the graded map from width
+$\dwd(\sigma)$ to width $\dwd(\tau)$ read off~$d$.
 \AgdaRefs{\Agda{DialogueTrees.Predicate}{ord}; \texttt{wd},
 \texttt{Dom}.}
 \end{definition}
@@ -1031,8 +1868,9 @@ Let $\sigma$ be a type.
 \item\label{item:dom-add}
   It is closed under the translation: if $x \dom_{\sigma} d$ and
   $\nu \le \nu'$, then
-  $x \bplus_{\sigma} \nu \dom_{\sigma} d'$, where $d'$ adds $\nu'$ at
-  order~$0$ and takes a successor at every order above.
+  $x \bplus_{\sigma} \nu \dom_{\sigma} d^{+\nu'}$, the datum
+  of~\cref{def:rect-ops} that adds $\nu'$ at order~$0$ and takes a
+  successor at every order above.
 \item\label{item:dom-eps}
   At the ground type a small datum gives a bound below~$\eps$: if
   $a \dom_{\gr} d$ and $d$ is small then $a < \eps$.
@@ -1043,12 +1881,33 @@ Let $\sigma$ be a type.
 \end{lemma}
 
 \begin{proof}
-Each is an induction on the type whose arrow case passes under the
-argument. For (\labelcref{item:dom-add}), a translation alone would
-not do: absorbing a code into a translation under a limit multiplier
-asks for $b \btimes m \bplus d \le (b \bplus d) \btimes m$, which is
-false, so the code is added at order~$0$ and a successor is taken at
-every order above.
+At the ground type a datum is a single code~$d_0$, with
+$\tsum d = d_0$, so that $a \dom_{\gr} d$ means $a \le d_0$.
+
+Parts (\labelcref{item:dom-mono})
+to~(\labelcref{item:dom-add}) are inductions on the type whose arrow
+case passes under the argument. At the ground type,
+(\labelcref{item:dom-mono}) is transitivity,
+(\labelcref{item:dom-sup}) is the limit rule, and
+(\labelcref{item:dom-add}) is $a \bplus \nu \le d_0 \bplus \nu'$,
+which follows from $a \le d_0$ and $\nu \le \nu'$
+by~\cref{lem:add}(\labelcref{item:add-mono}). The arrow case
+of~(\labelcref{item:dom-mono}) uses monotonicity of the reading and of
+the action in the map, that of~(\labelcref{item:dom-sup}) passes the
+supremum under the argument on both sides, and that
+of~(\labelcref{item:dom-add}) uses
+$(\act{\rd d}{e})^{+\nu'} \tle \act{\rd{d^{+\nu'}}}{e}$,
+from~\cref{lem:rect-ops}(\labelcref{item:rread}),
+and~(\labelcref{item:dom-mono}). For~(\labelcref{item:dom-add}), a
+translation alone would not do: absorbing a code into a translation
+under a limit multiplier asks for
+$b \btimes m \bplus d \le (b \bplus d) \btimes m$, which is false, so
+the code is added at order~$0$ and a successor is taken at every order
+above.
+
+Part~(\labelcref{item:dom-eps}) is not an induction. From $a \le d_0$
+and $d_0 < \eps$, that is $\bS d_0 \le \eps$, the successor rule and
+transitivity give $\bS a \le \bS d_0 \le \eps$, that is $a < \eps$.
 \end{proof}
 
 \subsection{The clauses}
@@ -1067,7 +1926,9 @@ every~$s$. Application is the clause for an arrow read forwards.
 \begin{proof}
 The clause for $\Zeroc$ is the least element property of~$\bZ$, and
 the one for $\Succc$ holds because a datum is below its image under a
-graded map. The oracle adds one query and therefore
+graded map between equal widths, each output being the value of a
+cascade at the suffix of the datum from its own order,
+by~\cref{lem:cascade-basic}. The oracle adds one query and therefore
 asks that the slot of order~$0$ be positive, which
 $\bS\,\bZ$ supplies. For~$\Kc$, whose majorant discards its second
 argument, the datum of the first argument has to survive two
@@ -1088,15 +1949,52 @@ majorant of~$\Sc$, depending only on the three widths.
 \end{lemma}
 
 \begin{proof}
-The datum is built rather than designed, from
-\cref{lem:calculus}. The proof is the one a reader of
-$\lambda f\,g\,a.\,f\,a\,(g\,a)$ would write: the three data arrive one
-at a time and are combined, in the order in which they are bound, into
-one datum; the body is two applications over that one datum, which is
-\cref{lem:calculus}(\labelcref{item:apply}) twice; and the three
-binders are~\cref{lem:calculus}(\labelcref{item:curry}) twice and the
-flattening of a map into a tuple, which is abstraction with an empty
-context.
+The datum is built rather than designed, from~\cref{lem:calculus},
+and the proof is the one a reader of $\lambda f\,g\,a.\,f\,a\,(g\,a)$
+would write. Let the types be $\rho\arr\sigma\arr\tau$,
+$\rho\arr\sigma$ and~$\rho$, let $m$, $p$ and~$q$ be the widths of
+the data of $\rho$, $\sigma$ and~$\tau$, and let
+$\varphi \dom d_\varphi$, $\gamma \dom d_\gamma$ and $a \dom e$ for small data
+$d_\varphi$, $d_\gamma$ and~$e$. The three data are combined into the
+small datum $u = e \sqcup u_2$ with $u_2 = d_\gamma \sqcup d_\varphi$,
+the variable bound last coming first, and each of them sits
+inside~$u$. By projection
+and~\cref{lem:dom-closure}(\labelcref{item:dom-mono}), $\varphi$, $\gamma$ and~$a$ are dominated by the
+images of~$u$ under zero maps of the appropriate widths, and three
+applications, each the clause for an arrow followed by
+\cref{lem:calculus}(\labelcref{item:apply}), give
+\[
+  \varphi\,a \dom \act{A_1}{u} , \qquad
+  \gamma\,a \dom \act{A_2}{u} , \qquad
+  \varphi\,a\,(\gamma\,a) \dom \act{B}{u} ,
+\]
+where $A_1 = \mathrm{zero}\cdot\mathrm{zero}$ goes to width
+$\W(p,q)$, $A_2 = \mathrm{zero}\cdot\mathrm{zero}$ to width~$p$ and
+$B = A_1 \cdot A_2$ to width~$q$. The three binders are abstraction
+twice and flattening:
+\begin{gather*}
+  \act{B}{e \sqcup u_2} \tle \act{\rd{\act{(\Lambda B)}{u_2}}}{e} ,
+  \qquad
+  \act{(\Lambda B)}{d_\gamma \sqcup d_\varphi}
+    \tle \act{\rd{\act{(\Lambda\Lambda B)}{d_\varphi}}}{d_\gamma} ,
+  \\
+  \Lambda\Lambda B \tle \rd{d_S} ,
+\end{gather*}
+for $d_S = \flat\Lambda\Lambda B$, by
+\cref{lem:calculus}(\labelcref{item:curry})
+and~\cref{lem:rect-ops}(\labelcref{item:rflat}). By monotonicity of
+the reading and of the action in the map,
+\[
+  \act{B}{u} \tle
+  \act{\rd{\act{\rd{\act{\rd{d_S}}{d_\varphi}}}{d_\gamma}}}{e} ,
+\]
+and the right-hand side is the datum that three clauses for an arrow
+assign to $\varphi\,a\,(\gamma\,a)$, the value of the majorant of~$\Sc$
+at $\varphi$, $\gamma$ and~$a$, when $d_S$ is taken as the datum
+of~$\Sc$. So $d_S$ dominates the majorant of~$\Sc$
+by~\cref{lem:dom-closure}(\labelcref{item:dom-mono}). The datum $d_S$ is built from zero maps
+by application, abstraction and flattening, so it is small and depends
+only on $m$, $p$ and~$q$.
 \end{proof}
 
 \begin{lemma}[The clause for the recursor]
@@ -1108,11 +2006,33 @@ the recursor.
 \end{lemma}
 
 \begin{proof}
-As in~\cref{lem:s-clause}. The bound on the iterates is supplied by
-iteration, \cref{lem:calculus}(\labelcref{item:orbit}), and the
-translation by the count is absorbed by the operation of
-\cref{lem:dom-closure}(\labelcref{item:dom-add}), the code added
-belonging to the context as well.
+Let $p$ be the width of the data of~$\sigma$, and let
+$\varphi \dom d_\varphi$, $a \dom d_a$ and $\nu \dom d_\nu$ for small
+data of widths $\W(p,p)$, $p$ and~$1$, with $d_\nu = (v)$, so that
+$\nu \le v$. Combine them into the small datum
+$u = d_\nu \sqcup (d_a \sqcup d_\varphi)$, the variable bound last
+coming first, whose first entry is above~$v$. The data
+$d_j = \rd{d_\varphi}^{\,j}(d_a)$ are small and satisfy
+$\iterop\,\varphi\,a\,j \dom d_j$, by induction on~$j$ through the
+clause for an arrow, and since $d_\varphi$ and $d_a$ sit inside~$u$,
+\cref{lem:calculus}(\labelcref{item:orbit}) gives a map~$R$, depending
+on the widths alone, with $d_j \tle \act R u$ for every~$j$.
+By~\cref{lem:dom-closure}(\labelcref{item:dom-mono},%
+\labelcref{item:dom-sup}),
+$\sup_{\sigma}(j \mapsto \iterop\,\varphi\,a\,j) \dom \act R u$, and
+by~(\labelcref{item:dom-add}) of the same lemma the majorant
+\[
+  \Mj_{\Iterc}\,\varphi\,a\,\nu
+  = \big(\textstyle\sup_{\sigma}(j \mapsto \iterop\,\varphi\,a\,j)\big)
+    \bplus_{\sigma} \nu
+\]
+is dominated by $(\act R u)^{+v}$, which is below
+$\act{R^{\dagger}}{u}$ by~\cref{lem:rect-ops}(\labelcref{item:rtrans}).
+The map $R^{\dagger}$ does not depend on~$v$, the code added belonging
+to the context as well. The three binders are then abstraction twice
+and flattening, exactly as in~\cref{lem:s-clause}, and give the datum
+$d_I = \flat\Lambda\Lambda R^{\dagger}$ of the recursor, which is
+small and depends only on~$p$.
 \end{proof}
 
 \subsection{The theorem}
@@ -1129,7 +2049,9 @@ $\dwd(\sigma)$ dominating its majorant.
 By induction on the term, the constants by~\cref{lem:easy-clauses},
 \cref{lem:s-clause} and~\cref{lem:iter-clause}, and application by the
 clause for an arrow, whose datum is the image of the datum of the
-argument under the datum of the function read as a graded map.
+argument under the datum of the function read as a graded map, and is
+small by~\cref{lem:cascade-basic}, each of its entries being the value
+of a small cascade at a small datum.
 \end{proof}
 
 \begin{corollary}
@@ -1196,13 +2118,33 @@ $\tower 0$.
 By the computation of the tree in~\cref{ex:small}, the height is the
 supremum over~$j$ of one more than the height of the $j$-th iterate of
 the generic oracle at $\beta\,\eta\,0$. If the numeral $\num k$ is
-below the height of a tree, then $\num{k+1}$ is below the height of
-its image under the generic oracle, by induction on the tree, the
-numeral being carried through a single branch at each step as
-in~\cref{rem:one-branch}. So $\num j$ is below the height of the
-$j$-th iterate, which gives the lower bound. In the other direction
-the $j$-th iterate has height at most $\num 1 \bplus \num j$, which
-is~$\num{j+1}$, so every branch is below~$\omega$.
+below the height of a tree~$d$, then $\num{k+1}$ is below the height
+of $\mathrm{generic}\,d$, by induction on~$k$ for all~$d$, the numeral
+being carried through a single branch at each step as
+in~\cref{rem:one-branch}. For $k = 0$, the tree
+$\mathrm{generic}\,d$ is a query node by~\cref{def:kleisli-generic},
+so its height is a limit whose members are successors, and $\num 1$ is
+below it by the successor rule and the cocone at~$0$. For $k+1$, the tree $d$ is not a leaf,
+since a leaf has height~$\bZ$ and no rule concludes
+$\bS\,\num k \le \bZ$, so $d = \beta\,\varphi\,i$ and
+$\height(d) = \bL(n \mapsto \bS\,\height(\varphi\,n))$. A derivation
+of $\bS\,\num k \le \height(d)$ ends with the cocone, from
+$\bS\,\num k \le \bS\,\height(\varphi\,n)$ for some~$n$, and this
+ends with the successor rule, from
+$\num k \le \height(\varphi\,n)$. By induction,
+$\num{k+1} \le \height(\mathrm{generic}\,(\varphi\,n))$, so
+$\num{k+2} \le \bS\,\height(\mathrm{generic}\,(\varphi\,n))$, which is
+the member at~$n$ of
+$\height(\mathrm{generic}\,d)
+ = \bL(m \mapsto \bS\,\height(\mathrm{generic}\,(\varphi\,m)))$, and
+the cocone concludes. So $\num j$ is below the height of the $j$-th
+iterate, by induction on~$j$, which gives the lower bound. In the
+other direction the $j$-th iterate has height at most
+$\height(\beta\,\eta\,0) \bplus \num j$,
+by~\cref{lem:height-three}(\labelcref{item:generic}) applied $j$~times,
+which is below $\num 1 \bplus \num j = \num{j+1}$ by~\cref{ex:small}
+and~\cref{lem:add}(\labelcref{item:add-mono}), so every branch is
+below~$\omega$.
 \AgdaRefs{\Agda{DialogueTrees.Examples}{ι-generic};
 \texttt{ι-iter},
 \texttt{iter-generic-≤}.}
@@ -1228,8 +2170,8 @@ tree of the $n$-th member, and $a \le \height(\mathrm{tree}(a))$
 follows by induction on~$a$. Were a term~$t$ to have the tree of~$\eps$,
 then $\eps \le \height(\dtree(t))$, so that
 $\bS\,\eps \le \bS\,\height(\dtree(t)) \le \eps$ by monotonicity of
-the successor and \cref{thm:main}, and $\bS\,\eps \le \eps$ is refuted
-by induction on the code.
+the successor and \cref{thm:main}, and $\bS\,\eps \le \eps$ is
+excluded by~\cref{lem:irrefl}.
 \AgdaRefs{\Agda{DialogueTrees.Examples}{S-irrefl}.}
 \end{proof}
 
@@ -1252,16 +2194,45 @@ interpretation of zero, successor and limit, so it inhabits
   \mathcal{O}\sigma = \sigma \arr (\sigma\arr\sigma)
     \arr ((\gr\arr\sigma)\arr\sigma) \arr \sigma .
 \]
-Zero, successor, limit and addition keep the parameter fixed, while
-multiplication and exponentiation consume an encoding one level up,
-exponentiation having the type
-$\mathcal{O}(\mathcal{O}\sigma) \arr \mathcal{O}(\mathcal{O}\sigma)
- \arr \mathcal{O}\sigma$. The approximant $\tower n$ is therefore
-written at its own type, with $n$ nestings of~$\mathcal{O}$ below the
-level at which it is used.
+Zero, successor, limit and addition are the terms
+\begin{align*}
+  \mathrm{zer} &= \lambda z\,s\,l.\,z , &
+  \mathrm{suc}\,c &= \lambda z\,s\,l.\,s\,(c\,z\,s\,l) , \\
+  \mathrm{lim}\,f &= \lambda z\,s\,l.\,l\,(\lambda n.\,f\,n\,z\,s\,l) , &
+  \mathrm{add}\,a\,b &= \lambda z\,s\,l.\,a\,(b\,z\,s\,l)\,s\,l ,
+\end{align*}
+which keep the parameter~$\sigma$ fixed, while multiplication and
+exponentiation consume an encoding one level up,
+\[
+  \mathrm{mul}\,a\,b
+    = b\,\mathrm{zer}\,(\lambda r.\,\mathrm{add}\,r\,a)\,\mathrm{lim} ,
+  \qquad
+  \mathrm{exp}\,a\,b
+    = b\,(\mathrm{suc}\,\mathrm{zer})\,(\lambda r.\,\mathrm{mul}\,r\,a)
+      \,\mathrm{lim} ,
+\]
+with $\mathrm{mul} : \mathcal{O}\sigma \arr \mathcal{O}(\mathcal{O}\sigma)
+ \arr \mathcal{O}\sigma$ and
+$\mathrm{exp} : \mathcal{O}(\mathcal{O}\sigma) \arr
+ \mathcal{O}(\mathcal{O}\sigma) \arr \mathcal{O}\sigma$. The numerals
+form the sequence
+$\mathrm{fin} = \Iterc\,\mathrm{suc}\,\mathrm{zer} :
+ \gr \arr \mathcal{O}\sigma$, its limit
+$\omega^{\Tm} = \mathrm{lim}\,\mathrm{fin}$ encodes~$\omega$, and the
+approximants are encoded by
+\[
+  \mathrm{tower}_0 = \omega^{\Tm} , \qquad
+  \mathrm{tower}_{n+1} = \mathrm{exp}\,\omega^{\Tm}\,\mathrm{tower}_n ,
+\]
+where $\mathrm{tower}_{n+1}$ at the type $\mathcal{O}\sigma$ uses
+$\omega^{\Tm}$ and $\mathrm{tower}_n$ at the type
+$\mathcal{O}(\mathcal{O}\sigma)$. The approximant $\tower n$ is
+therefore written at its own type, with $n$ nestings
+of~$\mathcal{O}$ below the level at which it is used.
 \AgdaRefs{\Agda{DialogueTrees.Sharpness}{𝓞}; \texttt{zerᵀ},
 \texttt{sucᵀ}, \texttt{limᵀ}, \texttt{addᵀ}, \texttt{mulᵀ},
-\texttt{expᵀ}, \texttt{towerᵀ}; \Agda{Ordinals.ChurchEncoding}{O}.}
+\texttt{expᵀ}, \texttt{finᵀ}, \texttt{ωᵀ}, \texttt{towerᵀ};
+\Agda{Ordinals.ChurchEncoding}{O}.}
 \end{definition}
 
 \begin{remark}
@@ -1273,11 +2244,238 @@ the uniform typing and hence~$\eps$, which is how
 \cite{CoquandHancockSetzer1997} obtains it.
 \end{remark}
 
+The codes that the encodings denote are computed by folds.
+
+\begin{definition}[Folds of codes]
+\label{def:fold}
+For a code~$z'$, a map~$s'$ from codes to codes and a map~$l'$ from
+sequences of codes to codes, the fold
+$\mathrm{fold}_{z',s',l'}$ is the map on codes defined by
+\[
+  \mathrm{fold}(\bZ) = z' , \qquad
+  \mathrm{fold}(\bS a) = s'(\mathrm{fold}(a)) , \qquad
+  \mathrm{fold}(\bL f) = l'(n \mapsto \mathrm{fold}(f\,n)) .
+\]
+We write
+\[
+  \mathrm{mul}^{c}(a, b)
+    = \mathrm{fold}_{\bZ,\, r \mapsto a \bplus r,\, \bL}(b) ,
+  \qquad
+  \mathrm{exp}^{c}(a, b)
+    = \mathrm{fold}_{\num 1,\, r \mapsto \mathrm{mul}^{c}(r, a),\,
+      \bL}(b) ,
+\]
+and
+$\mathrm{tower}^{c}_0 = \omega$ and
+$\mathrm{tower}^{c}_{n+1} = \mathrm{exp}^{c}(\omega,
+ \mathrm{tower}^{c}_n)$.
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{fold}; \texttt{mulᶜ},
+\texttt{expᶜ}, \texttt{towerᶜ}.}
+\end{definition}
+
+\begin{lemma}[The folds]
+\label{lem:fold}
+For all codes $a$, $b$ and~$x$,
+\[
+  \mathrm{fold}_{\bZ,\bS,\bL}(a) = a , \qquad
+  \mathrm{fold}_{z',s',l'}(a \bplus b)
+    = \mathrm{fold}_{\mathrm{fold}_{z',s',l'}(a),\, s',\, l'}(b) ,
+\]
+and $\mathrm{mul}^{c}(x, \omega) = x \btimes \omega$ and
+$\mathrm{exp}^{c}(\omega, b) = \omega^{b}$, so that
+$\mathrm{tower}^{c}_n = \tower n$ for every~$n$.
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{fold-id}; \texttt{fold-⊕},
+\texttt{mulᶜ-ι}, \texttt{mulᶜ-ω}, \texttt{expᶜ-ω\^{}},
+\texttt{towerᶜ-tower}.}
+\end{lemma}
+
+\begin{proof}
+The two identities are inductions on $a$ and on~$b$, using function
+extensionality at a limit. The fold $\mathrm{mul}^{c}$ groups its
+summands in the other order from the multiplication
+of~\cref{def:arithmetic}, and
+$\mathrm{mul}^{c}(x, \num n) = x \btimes \num n$ by induction on~$n$,
+since $x \bplus x \btimes \num n = x \btimes \num n \bplus x$ by
+associativity of addition; both sides of
+$\mathrm{mul}^{c}(x, \omega) = x \btimes \omega$ are the limits of
+these. The identity for $\mathrm{exp}^{c}$ is an induction on~$b$,
+using the one for $\mathrm{mul}^{c}$ at a successor, and the last
+claim follows by induction on~$n$.
+\end{proof}
+
+In the dialogue interpretation a value of type $\gr \arr \sigma$ is a
+function from dialogue trees to $\dsem\sigma$, and the interpretation
+of a term written in $\lambda$-notation computes as the
+$\lambda$-term reads, since $\Kc$ and~$\Sc$ are interpreted as the
+projection and the substitution. Two further facts are used below.
+The recursor is interpreted as a Kleisli extension
+(\cref{def:dialogue-interpretation}), so that
+$\dsem{\mathrm{fin}} = \kext{(k \mapsto
+ \dsem{\mathrm{suc}}^{k}\,\dsem{\mathrm{zer}})}$. And the Kleisli
+extension at an arrow type acts under the argument, so that for
+$g : \N \to \dsem{\mathcal{O}\sigma}$ and values $z$, $s$, $l$,
+\[
+  (\kext g\,d)\,z\,s\,l = \kext{(k \mapsto g\,k\,z\,s\,l)}\,d ,
+\]
+and hence
+\[
+  \dsem{\mathrm{lim}}\,(\kext g)\,z\,s\,l
+    = l\,\big(\kext{(k \mapsto g\,k\,z\,s\,l)}\big) .
+\]
+
+\begin{definition}[The parametric relation]
+\label{def:rel}
+Let $\sigma$ be a type and $R$ a relation between $\dsem\sigma$ and
+the Brouwer codes. A value $c$ of $\dsem{\mathcal{O}\sigma}$ and a
+code~$a$ satisfy $\mathrm{Rel}_{\sigma,R}(c, a)$ when
+\[
+  R\big(c\,z\,s\,l,\ \mathrm{fold}_{z',s',l'}(a)\big)
+\]
+for all values $z$ of $\dsem\sigma$, maps
+$s : \dsem\sigma \to \dsem\sigma$ and
+$l : (\dsem\gr \to \dsem\sigma) \to \dsem\sigma$, and all $z'$, $s'$
+and~$l'$ as in~\cref{def:fold}, such that
+\begin{enumerate}
+\item\label{item:rel-z}
+  $R(z, z')$,
+\item\label{item:rel-s}
+  $R(x, y)$ implies $R(s\,x, s'\,y)$ for all $x$ and~$y$, and
+\item\label{item:rel-l}
+  for all $g : \N \to \dsem\sigma$ and sequences of codes~$h$ with
+  $R(g\,j, h\,j)$ for every~$j$, we have $R(l\,(\kext g), l'\,h)$,
+\end{enumerate}
+where $\kext g$ is the Kleisli extension at type~$\sigma$
+of~\cref{sec:dialogue}.
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{Rel}.}
+\end{definition}
+
+Condition~(\labelcref{item:rel-l}) asks about the limit only at
+Kleisli extensions $\kext g$, which branch over the answer to a query
+and continue with $g\,j$ on the $j$-th branch. A function on trees
+that ignores its argument makes no query, and the condition says
+nothing about it. The terms of~\cref{def:church} pass to a limit
+nothing but Kleisli extensions, which is what the following lemma
+uses.
+
+\begin{lemma}[Preservation of the relation]
+\label{lem:rel}
+Let $\sigma$ be a type and $R$ a relation between $\dsem\sigma$ and
+the Brouwer codes, and write $\mathrm{Rel}$ for
+$\mathrm{Rel}_{\sigma,R}$ and $\mathrm{Rel}'$ for
+$\mathrm{Rel}_{\mathcal{O}\sigma,\mathrm{Rel}}$, the relation one level
+up whose parameter relation is $\mathrm{Rel}$ itself.
+\begin{enumerate}
+\item\label{item:p-zs}
+  $\mathrm{Rel}(\dsem{\mathrm{zer}}, \bZ)$, and
+  $\mathrm{Rel}(c, a)$ implies
+  $\mathrm{Rel}(\dsem{\mathrm{suc}}\,c, \bS a)$.
+\item\label{item:p-lim}
+  If $\mathrm{Rel}(g\,j, h\,j)$ for every~$j$, then
+  $\mathrm{Rel}(\dsem{\mathrm{lim}}\,(\kext g), \bL h)$.
+\item\label{item:p-add}
+  If $\mathrm{Rel}(a, a')$ and $\mathrm{Rel}(b, b')$, then
+  $\mathrm{Rel}(\dsem{\mathrm{add}}\,a\,b, b' \bplus a')$.
+\item\label{item:p-mul}
+  If $\mathrm{Rel}(a, a')$ and $\mathrm{Rel}'(b, b')$, then
+  $\mathrm{Rel}(\dsem{\mathrm{mul}}\,a\,b, \mathrm{mul}^{c}(a', b'))$.
+\item\label{item:p-exp}
+  If $\mathrm{Rel}'(a, a')$ and $\mathrm{Rel}'(b, b')$, then
+  $\mathrm{Rel}(\dsem{\mathrm{exp}}\,a\,b, \mathrm{exp}^{c}(a', b'))$.
+\item\label{item:p-tower}
+  $\mathrm{Rel}(\dsem{\omega^{\Tm}}, \omega)$, and
+  $\mathrm{Rel}(\dsem{\mathrm{tower}_n}, \mathrm{tower}^{c}_n)$ for
+  every~$n$.
+\end{enumerate}
+\AgdaRefs{\Agda{DialogueTrees.Sharpness}{zerᵀ-Rel}; \texttt{sucᵀ-Rel},
+\texttt{limᵀ-Rel}, \texttt{addᵀ-Rel}, \texttt{mulᵀ-Rel},
+\texttt{expᵀ-Rel}, \texttt{finᵀ-Rel}, \texttt{ωᵀ-Rel},
+\texttt{towerᵀ-Rel}.}
+\end{lemma}
+
+\begin{proof}
+For the first three parts, fix $z$, $s$, $l$, $z'$, $s'$ and~$l'$
+satisfying the three conditions of~\cref{def:rel}, and write
+$\mathrm{fold}$ for $\mathrm{fold}_{z',s',l'}$.
+
+(\labelcref{item:p-zs}) The first claim is
+condition~(\labelcref{item:rel-z}), and the second follows from
+condition~(\labelcref{item:rel-s}), since
+$\dsem{\mathrm{suc}}\,c\,z\,s\,l = s\,(c\,z\,s\,l)$ and
+$\mathrm{fold}(\bS a) = s'(\mathrm{fold}(a))$.
+
+(\labelcref{item:p-lim}) By the second fact above,
+$\dsem{\mathrm{lim}}\,(\kext g)\,z\,s\,l
+ = l\,(\kext{(k \mapsto g\,k\,z\,s\,l)})$. The sequences
+$k \mapsto g\,k\,z\,s\,l$ and $k \mapsto \mathrm{fold}(h\,k)$ are
+related pointwise by hypothesis, so
+condition~(\labelcref{item:rel-l}) relates the value to
+$l'(k \mapsto \mathrm{fold}(h\,k)) = \mathrm{fold}(\bL h)$.
+
+(\labelcref{item:p-add}) We have
+$\dsem{\mathrm{add}}\,a\,b\,z\,s\,l = a\,(b\,z\,s\,l)\,s\,l$. The
+hypothesis on~$b$ gives $R(b\,z\,s\,l, \mathrm{fold}(b'))$, so the
+hypothesis on~$a$, applied with $b\,z\,s\,l$ and $\mathrm{fold}(b')$
+in place of $z$ and~$z'$, relates the value to
+$\mathrm{fold}_{\mathrm{fold}(b'),s',l'}(a')$, which is
+$\mathrm{fold}(b' \bplus a')$ by~\cref{lem:fold}.
+
+(\labelcref{item:p-mul}) We have
+\begin{align*}
+  \dsem{\mathrm{mul}}\,a\,b &= b\,\dsem{\mathrm{zer}}\,
+    (r \mapsto \dsem{\mathrm{add}}\,r\,a)\,\dsem{\mathrm{lim}} , \\
+  \mathrm{mul}^{c}(a', b')
+    &= \mathrm{fold}_{\bZ,\, r \mapsto a' \bplus r,\, \bL}(b') .
+\end{align*}
+So the claim is the hypothesis $\mathrm{Rel}'(b, b')$
+at these two algebras, whose three conditions, for the relation
+$\mathrm{Rel}$, are (\labelcref{item:p-zs}), (\labelcref{item:p-add})
+and~(\labelcref{item:p-lim}). The third condition is met because
+$\mathrm{Rel}'$ asks it only at Kleisli extensions, which is what
+(\labelcref{item:p-lim}) handles.
+
+(\labelcref{item:p-exp}) In the same way,
+\begin{align*}
+  \dsem{\mathrm{exp}}\,a\,b &= b\,(\dsem{\mathrm{suc}}\,
+    \dsem{\mathrm{zer}})\,(r \mapsto \dsem{\mathrm{mul}}\,r\,a)\,
+    \dsem{\mathrm{lim}} , \\
+  \mathrm{exp}^{c}(a', b')
+    &= \mathrm{fold}_{\num 1,\, r \mapsto \mathrm{mul}^{c}(r, a'),\,
+      \bL}(b') ,
+\end{align*}
+and the three conditions are
+(\labelcref{item:p-zs}), (\labelcref{item:p-mul})
+and~(\labelcref{item:p-lim}).
+
+(\labelcref{item:p-tower}) By the first fact above,
+\[
+  \dsem{\omega^{\Tm}} = \dsem{\mathrm{lim}}\,\big(\kext{(k \mapsto
+    \dsem{\mathrm{suc}}^{k}\,\dsem{\mathrm{zer}})}\big) ,
+\]
+and the values $\dsem{\mathrm{suc}}^{k}\,\dsem{\mathrm{zer}}$ and
+$\num k$ satisfy $\mathrm{Rel}$ by~(\labelcref{item:p-zs}) and
+induction on~$k$, so
+(\labelcref{item:p-lim}) gives
+$\mathrm{Rel}(\dsem{\omega^{\Tm}}, \bL(k \mapsto \num k))$, and the
+limit is~$\omega$. The second claim is proved by induction on~$n$ for
+all $\sigma$ and~$R$ at once. At $n+1$, the terms $\omega^{\Tm}$ and
+$\mathrm{tower}_n$ at the type $\mathcal{O}(\mathcal{O}\sigma)$ are
+related by $\mathrm{Rel}'$ to $\omega$ and $\mathrm{tower}^{c}_n$, by
+the first claim and the induction hypothesis at
+$\mathcal{O}\sigma$ and $\mathrm{Rel}$, and (\labelcref{item:p-exp})
+concludes.
+\end{proof}
+
 \begin{definition}[The terms]
 \label{def:tower-term}
-The term $t_{n} : (\gr\arr\gr)\arr\gr$ runs the encoding of $\tower n$
-at the ground type against the oracle~$\alpha$ through the algebra
-that interprets zero as~$0$, the successor of~$x$ as
+The term $t_{n} : (\gr\arr\gr)\arr\gr$ is
+\[
+  t_n = \lambda\alpha.\,\mathrm{tower}_n\,\Zeroc\,
+    (\lambda x.\,\Iterc\,I\,x\,(\alpha\,\Zeroc))\,
+    (\lambda\varphi.\,\varphi\,(\alpha\,\Zeroc)) ,
+\]
+with $\mathrm{tower}_n$ at the ground type. It runs the encoding of
+$\tower n$ against the oracle~$\alpha$ through the algebra that
+interprets zero as~$0$, the successor of~$x$ as
 $\iterop\,(\lambda y.\,y)\,x\,(\alpha\,0)$, and the limit of a
 sequence~$\varphi$ as $\varphi\,(\alpha\,0)$.
 \AgdaRefs{\Agda{DialogueTrees.Sharpness}{tower-term}; \texttt{abs},
@@ -1310,25 +2508,34 @@ For every~$n$,
 \end{theorem}
 
 \begin{proof}
-By parametricity. The relation $\mathrm{Rel}(\sigma, R)$ states that a
-Church ordinal sends every algebra realising the three code
-constructors to a realisation of the fold of a Brouwer code, where
-realisation at the parameter type is an arbitrary relation~$R$ and the
-limit of the algebra is fed Kleisli extensions alone, which is what
-the terms produce and what turns one query into a branch per index.
-Zero, successor, limit, addition, multiplication and exponentiation
-preserve the relation, moving the code along the matching operation on
-codes, and each proof is a direct unfolding, the dialogue semantics of
-a compiled closed term computing. Instantiating the relation at the
-ground type with ``the code is below the height of the tree'', the
-three conditions of the algebra are checked directly. The code side
-lands on a fold of~$\tower n$, which is $\tower n$ itself, the folds
-used for the product and the power grouping their summands in the
-other order and agreeing with the operations
-of~\cref{def:arithmetic} by associativity of addition.
-\AgdaRefs{\Agda{DialogueTrees.Sharpness}{Rel}; \texttt{fold},
-\texttt{mulᶜ}, \texttt{expᶜ}, \texttt{towerᶜ-tower},
-\texttt{expᶜ-ω\^{}}, \texttt{towerᵀ-Rel}.}
+By parametricity. The dialogue tree of~$t_n$ is
+$\dsem{\mathrm{tower}_n}\,z\,s\,l$ with
+\[
+  z = \eta\,0 , \qquad
+  s\,x = \kext{(k \mapsto x)}\,(\beta\,\eta\,0)
+       = \beta\,(k \mapsto x)\,0 , \qquad
+  l\,\varphi = \varphi\,(\beta\,\eta\,0) ,
+\]
+since $\alpha\,\Zeroc$ is interpreted as
+$\mathrm{generic}\,(\eta\,0) = \beta\,\eta\,0$, and the recursor at the
+identity and~$x$ as the Kleisli extension of
+$k \mapsto \iterop\,(\lambda y.\,y)\,x\,k = x$. We
+apply~\cref{lem:rel}(\labelcref{item:p-tower}) at the ground type,
+with $R(d, a)$ meaning $a \le \height(d)$, to these three values and
+to the code algebra $\bZ$, $\bS$, $\bL$, after checking the three
+conditions of~\cref{def:rel}.
+Condition~(\labelcref{item:rel-z}) is $\bZ \le \height(\eta\,0)$. For
+condition~(\labelcref{item:rel-s}), if $y \le \height(x)$ then
+$\bS y \le \bS\,\height(x) \le \bL(k \mapsto \bS\,\height(x))
+ = \height(s\,x)$, by the successor rule and the cocone rule. For
+condition~(\labelcref{item:rel-l}), if $h\,j \le \height(g\,j)$ for
+every~$j$, then
+$l\,(\kext g) = \kext g\,(\beta\,\eta\,0) = \beta\,g\,0$, whose height
+$\bL(j \mapsto \bS\,\height(g\,j))$ is above every $h\,j$, so
+$\bL h \le \height(l\,(\kext g))$ by the limit rule. The lemma gives
+$\mathrm{fold}_{\bZ,\bS,\bL}(\mathrm{tower}^{c}_n) \le
+\height(\dtree(t_n))$, and the left-hand side is
+$\mathrm{tower}^{c}_n = \tower n$ by~\cref{lem:fold}.
 \end{proof}
 
 \begin{corollary}
@@ -1367,11 +2574,11 @@ The dialogue-tree height is a different measure, and
 of the induction is the same.
 
 The present proof has two features independent of the result. The
-first is that the ordinals are syntactic. Brouwer codes
-with the order of~\cref{def:codes} make the successor monotone by
-construction, which is what allows every lemma to be proved without
+first is that the ordinals are Brouwer codes. With their natural
+order the successor is monotone by construction, which is what allows every lemma to be proved without
 excluded middle; a treatment through the ordinals of the univalent
-library needs it, and the development records what fails. The second
+library needs it, because the successor on those ordinals is not
+monotone without it. The second
 is the grading. The predicate of~\cref{def:dom} is indexed by the
 order of a type, and~\cref{lem:widths} says that this grading is the
 same as the grading of the data, so that the clause for an arrow
@@ -1404,11 +2611,14 @@ middle for the propositions of the second universe, together with
 univalence, propositional truncation and set replacement, while their
 syntactic part assumes nothing. We have been unable to locate their
 Agda formalization for comparison with ours. The present development
-replaces the ordinals by Brouwer codes with the syntactic order
+replaces the ordinals by Brouwer codes with their natural order
 throughout, so that no part of it is classical and function
-extensionality is the only assumption. Since the syntactic order is
-sound for the standard interpretation of the codes, \cref{thm:main}
-gives the classical statement as well.
+extensionality is the only assumption. The natural order is sound
+for the standard interpretation of the codes as ordinals under excluded
+middle, by induction on a derivation of $a \le b$, the successor rule
+using that the successor on ordinals is then monotone, so
+\cref{thm:main} gives the classical statement as well. This remark is
+not formalized.
 
 They write that they do not claim their bound sharp, and leave open
 whether the heights are cofinal in~$\eps$. \Cref{cor:least} answers
@@ -1437,7 +2647,8 @@ then unformalized from it, again by LLM's, each statement of the paper
 being written from the Agda statement it points at. We describe the
 files of the development, say where the main theorems are and what
 has to be read by hand, describe the pointers that tie the paper to
-the code, and record how the paper was verified against it.
+the code, record how the paper was verified against it, and report the
+independent review of the paper alone and the changes it led to.
 
 \subsection{The files}
 \label{sec:files}
@@ -1447,8 +2658,9 @@ The development is 28 Agda modules under the prefix
 two directories, available at
 \url{https://github.com/martinescardo/DialogueTreesHeight}. Every
 module is checked with \texttt{--safe} and \texttt{--without-K}, with
-no postulates and no holes, and takes
-function extensionality as a parameter named \texttt{fe}. The library
+no postulates and no holes, and every module but the index, which only
+imports the others, takes function extensionality as a parameter named
+\texttt{fe}. The library
 it builds on is \texttt{TypeTopology}: the Brouwer codes come from
 \AgdaModule{Ordinals.BrouwerCodes}, and the dialogue trees, the
 combinatory system T and its dialogue interpretation from
@@ -1460,14 +2672,16 @@ or of dialogue trees. The modules \AgdaModule{Order},
 \AgdaModule{Multiplication}, \AgdaModule{Epsilon0} and
 \AgdaModule{MultClosure} are \cref{sec:codes}: the order, the
 arithmetic, the tower and the closure properties of~$\eps$. The other
-thirteen are \cref{sec:graded}: \AgdaModule{MoveTuple} for the data,
+thirteen are \cref{sec:graded} together with the laws of absorption
+of~\cref{lem:absorb}: \AgdaModule{MoveTuple} for the data,
 \AgdaModule{Cascade} and \AgdaModule{CascadeLevel} for the cascades,
 \AgdaModule{Rect} for the graded maps and the reading of a tuple as
-one, \AgdaModule{RectApply}, \AgdaModule{RectCurry},
-\AgdaModule{RectAlgebra} and \AgdaModule{RectOrbitAct} for the four
-facts of \cref{lem:calculus}, and \AgdaModule{Move},
-\AgdaModule{MultAffine}, \AgdaModule{Absorb}, \AgdaModule{RectAdd} and
-\AgdaModule{RectSum} for the arithmetic those rest on.
+one, \AgdaModule{RectAlgebra}, \AgdaModule{RectSum} and
+\AgdaModule{RectAdd} for the operations on graded maps and for
+projection, \AgdaModule{RectApply}, \AgdaModule{RectCurry} and
+\AgdaModule{RectOrbitAct} for application, abstraction and iteration
+in~\cref{lem:calculus}, and \AgdaModule{Move}, \AgdaModule{MultAffine}
+and \AgdaModule{Absorb} for the laws of absorption.
 
 The directory \AgdaModule{DialogueTrees}, 10 modules, is the rest
 of the paper. The module \AgdaModule{Constructive} defines the height,
@@ -1475,7 +2689,8 @@ of the paper. The module \AgdaModule{Constructive} defines the height,
 are \cref{sec:majorant}; \AgdaModule{Predicate}, \AgdaModule{SClause},
 \AgdaModule{IterClause} and \AgdaModule{Fundamental} are
 \cref{sec:bound}; \AgdaModule{Examples} and \AgdaModule{Sharpness} are
-\cref{sec:sharp}; and \AgdaModule{Main} restates the main theorems.
+\cref{sec:sharp}, \AgdaModule{Examples} also holding the
+irreflexivity of~\cref{lem:irrefl}; and \AgdaModule{Main} restates the main theorems.
 The module \AgdaModule{index} imports all of them in dependency order
 and ends with an outline of the proof and the references.
 
@@ -1528,8 +2743,10 @@ that $\eps$ is its limit.
 Two claims in the paper that something is false, in
 \cref{rem:last-grade} and in the proof of
 \cref{lem:dom-closure}(\labelcref{item:dom-add}), are motivation and
-are not formalized, and the account of the proof of Xiao and Sun
-in~\cref{sec:xiaosun} comes from reading their paper.
+are not formalized, nor is the remark of~\cref{sec:xiaosun} that the
+natural order is sound for the standard interpretation of the codes
+under excluded middle, and the account of the proof of Xiao and Sun in
+the same section comes from reading their paper.
 
 \subsection{The pointers}
 \label{sec:deformalizing}
@@ -1539,7 +2756,7 @@ proves it. A pointer names a module and a definition in it, then
 further names of the same module, and a name must be defined in the
 module it is cited under rather than re-exported by it. A script
 resolves every pointer against the sources and reports, for this
-paper, 52 notes carrying 199 names, all resolving. Four numbered items
+paper, 64 notes carrying 300 names, all resolving. Four numbered items
 carry no pointer, three remarks and a question, which make no formal
 claim, and \cref{lem:widths} carries a note in place of a lemma, its
 two sides being definitionally equal. The paper was written statement
@@ -1592,6 +2809,128 @@ formalization, and in each run the model carrying out that pass had
 the formalization at hand, so that it could read the paper as it was
 meant rather than as it stands. An independent pass~A is the single
 change that would most strengthen the procedure.
+
+The procedure was run once more after the four rounds
+of~\cref{sec:review}, on the revised paper. It found no error of
+mathematics and fourteen points: three of faithfulness, namely that the
+soundness of the natural order for the standard interpretation of the
+codes was asserted without saying that it is a classical remark and is
+not formalized, that the paper said the development records what fails
+without excluded middle when the classical modules had been discarded
+in the pruning, and that it said every module takes function
+extensionality as a parameter when the index does not; and eleven of
+precision and language, most of them in the text the revision had
+added. The same limitation applied, the model carrying out pass~A
+having had the formalization at hand.
+
+\subsection{The independent review}
+\label{sec:review}
+
+An independent pass~A was then carried out, on 28 October 2026. A copy
+of the paper was made with the pointers, the links, this appendix and
+every mention of the formalization removed, and it was given to an LLM
+that had taken no part in the development, with the request to referee
+it for mathematical correctness. The referee was asked not to consult
+the internet, and it confirmed that it did not, which has to be taken
+on trust. Its verdict was that the main claims were not established by
+the paper as written, and it recommended a major revision. It found no
+counterexample to the bound. It made three findings, and Mart\'in
+Escard\'o, reading the same copy, made a fourth.
+
+\begin{enumerate}
+\item The reading of a tuple as a graded map was misstated. The paper
+  took the cascade of output order~$j$ to be the whole suffix of the
+  tuple from~$j$, which is longer than a cascade reading the input
+  orders $j$ and above as soon as the output is wider than the input
+  by more than one. The formalization reads the entries of orders $j$
+  to~$p$ only, as~\cref{sec:rect} now says.
+\item The four parts of~\cref{lem:calculus} were stated without proof,
+  and the operations on graded maps that the clauses for~$\Sc$ and the
+  recursor use were called routine and not defined. The laws of
+  absorption of~\cref{lem:absorb}, the operations on cascades and on
+  graded maps, with~\cref{lem:cascade-ops,lem:rect-ops}, and the proof
+  of~\cref{lem:calculus} now supply them, and the proofs
+  of~\cref{lem:s-clause,lem:iter-clause} now name the data they build.
+\item The proof of~\cref{thm:lower} did not justify its limit step.
+  The limit of the algebra applies a function to the tree
+  $\beta\,\eta\,0$, and a function that ignores its argument makes no
+  query. The relation asks about the limit only at Kleisli extensions,
+  and the terms pass nothing else to a limit, but the paper said so in
+  a single clause and gave neither the encodings nor the relation.
+  Both are now written out, in~\cref{def:church,def:rel}, together
+  with the preservation lemma, \cref{lem:rel}.
+\item The generic oracle was defined only in passing, in the sentence
+  after the definition of dialogue trees. It now has a definition of
+  its own, \cref{def:kleisli-generic}, with the equations of the
+  Kleisli extension it is built from.
+\end{enumerate}
+
+None of the four concerns the formalization, which reads tuples as
+graded maps, proves the calculus, restricts the relation to Kleisli
+extensions and defines the generic oracle as the paper now does, and
+no Agda was changed. The first finding is a statement that does not
+match the definition its pointer names, which pass~B of the earlier
+runs had not caught. The second and third are proofs that the paper
+had left to its pointers, which a reader of the paper alone cannot
+follow.
+
+A second copy, made in the same way from the revised paper, was then
+given to the same referee, which again stated that it did not consult
+the internet. Its verdict was that the revision resolves the three
+findings of its first report, that it found no counterexample to the
+main claims, and that the sharpness argument had become substantially
+more convincing, and it recommended a minor revision for proof detail.
+It asked for two additions.
+
+\begin{enumerate}
+\item The elementary properties of the order and the laws of the
+  arithmetic of codes in~\cref{sec:codes}, on which the closure
+  of~$\eps$ rests, were stated without proof, and the proofs
+  of~\cref{lem:tower} and~\cref{prop:closure} were sketches. The
+  properties and the laws are now~\cref{lem:order,lem:add,lem:mult,lem:exp},
+  with their proofs, the absorption of sums and products by the tower
+  is~\cref{lem:tower-absorb}, and the proofs of~\cref{lem:tower}
+  and~\cref{prop:closure} now give every step.
+\item The proof of~\cref{prop:tree-of} excluded $\bS\,\eps \le \eps$
+  ``by induction on the code''. The general fact is
+  now~\cref{lem:irrefl}, with its proof.
+\end{enumerate}
+
+Again no Agda was changed. The second reading is less independent than
+the first, since the referee had its own first report in view, but it
+still had no access to the formalization.
+
+A third copy, made in the same way, was given to the same referee,
+which again stated that it did not consult the internet. It found no
+remaining objection to the correctness of the main theorems and
+recommended acceptance after minor clarifications, asking for three
+proof details, none of which it regarded as a gap.
+
+\begin{enumerate}
+\item The inequality $\num n \btimes \omega^{e} \le \omega^{\bS e}$ in
+  the proof of~\cref{lem:absorb} was proved ``by induction on~$e$''.
+  The three cases are now written out, the limit case included.
+\item The proof of~\cref{lem:dom-closure} called every part an
+  induction on the type, and did not write out the ground case of the
+  last part. The ground cases are now given, and the last part is
+  derived from $a \le d_0 < \eps$ by the successor rule.
+\item The induction in the proof of~\cref{prop:omega-attained} that the
+  generic oracle raises a finite lower bound by one did not show the
+  step at a query node. It is now an induction on the numeral, and the
+  step inverts a bound on a limit to a bound on one of its subtrees.
+\end{enumerate}
+
+No Agda was changed in this round either.
+
+A fourth copy, made in the same way, was given to the same referee,
+which again stated that it did not consult the internet. It confirmed
+that the three clarifications were present, rechecked how the bound on
+the iterates feeds the clause for the recursor and how the proof of the
+lower bound tests the limit of the algebra on Kleisli extensions, found
+no new gap, and recommended acceptance, with no remaining objection to
+the correctness of the paper. It added that its assessment is of the
+written proof, not a machine-checked verification. No change was asked
+for, and none was made.
 
 \begin{thebibliography}{9}
 

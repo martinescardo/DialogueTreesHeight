@@ -19,10 +19,10 @@ least `ε₀` is the dialogue tree of no term of System T. The bound of the
 theorem is a statement about the terms, the trees themselves reaching every
 height.
 
-The order on Brouwer codes is the syntactic one, so a lower bound on a limit
-code asks for a uniform witness: `L f ≤ b` holds when every `f n` is below
-`b`, and `a ≤ L f` holds when `a` is below a single `f n`. A numeral is below
-one branch of a tree, which is what makes the lower bound `ω ≤ height`
+The order on Brouwer codes is inductively generated, so a lower bound on a
+limit code asks for a uniform witness: `L f ≤ b` holds when every `f n` is
+below `b`, and `a ≤ L f` holds when `a` is below a single `f n`. A numeral is
+below one branch of a tree, which is what makes the lower bound `ω ≤ height`
 available for the third term, by induction on the numeral. A limit code needs
 a branch of its own at every index, so a term realising `tower n` for
 `n ≥ 1` uses recursion at higher types. The module Sharpness constructs
@@ -111,8 +111,8 @@ query-height-≥ = ≤-ℓ 0 (≤-S ≤-Z)
 \end{code}
 
 One application of the oracle raises the height of a numeral by one. The proof
-is by induction on the tree, and the numeral is carried through a single
-branch at each step, which is where the syntactic order is used.
+is by induction on the numeral, and the numeral is carried through a single
+branch at each step, which is where the natural order is used.
 
 \begin{code}
 

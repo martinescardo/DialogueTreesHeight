@@ -4,7 +4,7 @@ The dialogue-tree height of a term of System T of type `(ι ⇒ ι) ⇒ ι` is b
 This is the full proof, which includes only what is used to prove the above.
 
 The ordinals are the Brouwer codes of Ordinals.BrouwerCodes, with their
-syntactic order. Every module is checked with `--safe` and `--without-K`, and
+natural order. Every module is checked with `--safe` and `--without-K`, and
 the only hypothesis is function extensionality, taken as the module parameter
 `fe` and used at the limit case of each arithmetic law proved by induction,
 among them associativity of the product.
@@ -48,7 +48,7 @@ import DialogueTreesHeight.DialogueTrees.Main
 An outline of the proof.
 
 The ordinal arithmetic comes first and concerns Brouwer codes alone. The
-module Order defines their syntactic order, for which the successor is
+module Order defines their natural order, for which the successor is
 monotone outright, and their addition. The module Multiplication adds the
 numerals, the limit `ω`, the product, and the laws by which the bounds are
 moved. The module Epsilon0 adds base-`ω` exponentiation, the tower whose
@@ -124,7 +124,7 @@ alternative proof of it. Their ordinals are the classical ones, their
 formalisation assuming excluded middle for the propositions of the second
 universe along with univalence, propositional truncation and set
 replacement, whereas the ordinals here are Brouwer codes with their
-syntactic order and function extensionality is the only assumption. They
+natural order and function extensionality is the only assumption. They
 leave open whether the heights are cofinal in `ε₀`, which the module
 Sharpness settles, so that `ε₀` is the least bound.
 
