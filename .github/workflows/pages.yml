@@ -1,4 +1,4 @@
-# Typechecks the development, renders it to html with agda-html.py,
+# Type checks the development, renders it to html with agda-html.py,
 # compiles the paper, and publishes both on GitHub Pages.
 #
 # Pinned: TypeTopology at the commit the development was checked
@@ -56,7 +56,7 @@ jobs:
         path: TypeTopology/_build
         key: typetopology-agdai-${{ env.TYPETOPOLOGY_COMMIT }}
 
-    - name: Typecheck, and render and check the html, in the Agda image
+    - name: Type check, and render and check the html, in the Agda image
       run: |
         docker run --rm --entrypoint bash \
           -v "$GITHUB_WORKSPACE:/w" -w /w -e AGDA_DIR=/w/.agda \

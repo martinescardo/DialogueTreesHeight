@@ -44,14 +44,14 @@ parameter.
 Cite as
 
 @misc{Escardo2026DialogueTreesHeight,
-  author       = {Escard{\'o}, Mart{\'\i}n},
+  author       = {H{\"o}tzel Escard{\'o}, Mart{\'\i}n},
   title        = {The dialogue trees of system {T} have height below
                   $\varepsilon_0$, and this bound is sharp},
   year         = {2026},
-  month        = oct,
-  howpublished = {\url{https://github.com/martinescardo/DialogueTreesHeight}},
-  note         = {An Agda formalization, with a paper, developed with
-                  LLMs},
+  month        = nov,
+  howpublished = {\url{https://martinescardo.github.io/DialogueTreesHeight/dialogue-tree-height.pdf}},
+  note         = {Agda formalization, and full information, available
+                  at \url{https://github.com/martinescardo/DialogueTreesHeight}},
 }
 
 \begin{code}

@@ -1,6 +1,6 @@
 # The dialogue trees of system T have height below ε₀, and this bound is sharp
 
-27 October 2026
+27 October 2026 (last updated 2 November 2026)
 
 The [dialogue interpretation](https://doi.org/10.1016/j.entcs.2013.09.010)
 (MFPS 2013) of Gödel's system T assigns to each closed term of type
@@ -24,6 +24,8 @@ assumption is function extensionality.
 
 * [The formalization, rendered as html](https://martinescardo.github.io/DialogueTreesHeight/)
 * [The paper, as pdf](https://martinescardo.github.io/DialogueTreesHeight/dialogue-tree-height.pdf)
+* [The paper's Agda companion](https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.Article.html),
+  one entry per numbered item of the paper, in its order
 
 The formalization was developed with the aid of LLMs, and the paper
 was then unformalized from it, again with their aid.
@@ -32,14 +34,15 @@ was then unformalized from it, again with their aid.
 
 * [Related work](#related-work)
 * [The structure of the repository](#the-structure-of-the-repository)
-* [Typechecking](#typechecking)
 * [The main theorems](#the-main-theorems)
-* [How the formalization was pruned](#how-the-formalization-was-pruned)
+* [Type checking](#type-checking)
+* [AI use](#ai-use)
 * [How the paper was verified](#how-the-paper-was-verified)
   * [The pointers](#the-pointers)
   * [The A/B/C verification](#the-abc-verification)
   * [The independent review](#the-independent-review)
   * [Human verification](#human-verification)
+* [How the formalization was pruned](#how-the-formalization-was-pruned)
 * [License](#license)
 * [Citing this work](#citing-this-work)
 
@@ -86,22 +89,6 @@ interpretation come from the module
 [TypeTopology](https://github.com/martinescardo/TypeTopology), and the
 Brouwer codes from its module [`Ordinals.BrouwerCodes`][BrouwerCodes].
 
-## Typechecking
-
-The development was checked with Agda 2.9.0 against TypeTopology at
-commit
-[`ee4e4c86`](https://github.com/martinescardo/TypeTopology/commit/ee4e4c86da34ac609389285baa01e2eab6062b37).
-With TypeTopology registered as a library in `~/.agda/libraries`, run
-
-    cd source
-    agda --safe DialogueTreesHeight/index.lagda
-
-The html and the pdf are produced by the workflow in
-[`.github/workflows/pages.yml`][workflow], which typechecks the
-development against the same commit of TypeTopology, renders it with the
-script [`agda-html.py`][agda-html] of TypeTopology, and compiles the
-paper.
-
 ## The main theorems
 
 The four results are proved in two modules of
@@ -128,65 +115,50 @@ quantified over is inhabited and that the order isn't degenerate, and
 checks by `refl` that the approximants of `ε₀` are `ω`, `ω^ω`, `ω^ω^ω`,
 and so on, with `ε₀` their limit.
 
-## How the formalization was pruned
+## Type checking
 
-The attempts to prove the upper bound produced 118 Agda modules, with
-28,615 lines, of which 14,813 are nonblank lines of code and 6,399
-nonblank lines of prose, the rest being blank lines, comments and the
-delimiters of code blocks. The LLMs wrote the prose of their own
-accord, following the literate style of TypeTopology, without being
-asked to. Besides the proof, the modules hold the routes that were tried
-and abandoned, and a classical treatment over ordinals.
+The development was checked with Agda 2.9.0 against TypeTopology at
+commit
+[`ee4e4c86`](https://github.com/martinescardo/TypeTopology/commit/ee4e4c86da34ac609389285baa01e2eab6062b37).
+With TypeTopology registered as a library in `~/.agda/libraries`, run
 
-The pruning started from the module [`Fundamental`][Fundamental], which
-proves the upper bound, and kept only the modules it imports, directly
-or indirectly. That left 34 modules, with 8,167 lines, of which 4,325
-are code, and discarded the other 84 outright.
+    cd source
+    agda --safe DialogueTreesHeight/index.lagda
 
-Within those 34 modules, the pruning then worked on definitions. A
-program read off, for each top-level definition, the definitions its
-code mentions, and removed every definition that the theorem doesn't
-reach in the resulting graph. The program reads names rather than types,
-so its verdict wasn't taken on trust: the development was typechecked
-again after each round of removals, and the rounds were repeated until
-nothing more went. Then each surviving definition was deleted in turn
-and kept only if the development then failed to typecheck. This took 335
-typechecks and found four more definitions to remove. Of the 554
-top-level definitions in the 34 modules, 333 are used by the proof and
-221 aren't. The result is minimal in the sense that no single definition
-can be removed, which doesn't exclude that several could be removed
-together.
+The html and the pdf are produced by the workflow in
+[`.github/workflows/pages.yml`][workflow], which type checks the
+development against the same commit of TypeTopology, renders it with the
+script [`agda-html.py`][agda-html] of TypeTopology, and compiles the
+paper.
 
-Next, the 205 imported names that were no longer used were removed,
-together with 41 whole import statements, again typechecking after each
-step. One more module was then imported by nothing, and it was deleted
-together with the modules that the pruning had emptied. The 71
-paragraphs of prose that introduced emptied code blocks were cut, and
-the modules whose names no longer fitted their contents were renamed or
-merged. The remaining prose was then rewritten throughout. A second run
-of the one-at-a-time check, after these steps, was stopped after 100 of
-the 330 remaining definitions, having found nothing to remove. This
-leaves 24 modules, with 4,668 lines, of which 2,555 are code.
+## AI use
 
-Two things went wrong along the way, and both were caught. Removing
-imports once emptied the index, so that later typechecks checked
-nothing and the one-at-a-time check deleted almost everything, and Agda
-once reused stale interface files instead of checking the edited
-sources. Both passes were run again with Agda made to check the edited
-sources each time, and the final development was checked from deleted
-interface files.
+The first suggestion given to the LLM was to apply Howard's assignment
+of ordinals to terms (Howard 1970, in the paper's references). It
+didn't work, because the height of the dialogue tree of a term isn't a
+function of the values the term computes: a term whose output is small
+may ask the oracle a number of questions that no bound on its output
+predicts, so an assignment that bounds values doesn't by itself bound
+heights. However, Howard's majorant method, in conjunction with the
+techniques of the [MFPS 2013](https://doi.org/10.1016/j.entcs.2013.09.010)
+and [FSCD 2025](https://doi.org/10.4230/LIPIcs.FSCD.2025.19) papers,
+then gave rise to the results, first in Agda: a logical relation over
+the types of system T that bounds the height of the tree directly at
+the ground type, with a majorant hereditary in the type, so that the
+recursor acquires a majorant at every type and not only at the ground
+type.
 
-The sharpness results were proved afterwards, in the modules
-[`Examples`][Examples] and [`Sharpness`][Sharpness]. Together with
-[`Main`][Main] and the index, they bring the development to the 28
-modules here, with 5,643 lines, of which 2,985 are code.
+When we asked the LLM to prove that the bound is sharp, it failed after
+several hours. We then gave the hint to use the techniques of the
+TypeTopology module
+[`Ordinals.ChurchEncoding`](https://martinescardo.github.io/TypeTopology/Ordinals.ChurchEncoding.html),
+which represents ordinals in system T, and this produced an Agda proof
+in a couple of minutes.
 
-| stage | modules | lines | lines of code | lines of prose |
-| --- | ---: | ---: | ---: | ---: |
-| everything the attempts produced | 118 | 28,615 | 14,813 | 6,399 |
-| the modules the proof of the upper bound imports | 34 | 8,167 | 4,325 | 1,394 |
-| those modules, pruned | 24 | 4,668 | 2,555 | 693 |
-| **this repository**: the pruned modules with the sharpness results | **28** | **5,643** | **2,985** | **955** |
+The paper was then unformalized from the Agda, each statement being
+written from the Agda statement its pointer names, the formalization
+was pruned to what the proof uses, and the paper was verified against
+it, as the next two sections describe.
 
 ## How the paper was verified
 
@@ -379,8 +351,68 @@ for, and none was made.
 The author used the Agda companion
 [`Article`](https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.Article.html)
 to manually check that the paper matches the formalization. The companion was
-written by an LLM to match the two, so this check and the LLM's are
+written by an LLM to match the two, so this human check and the LLM's are
 independent.
+
+## How the formalization was pruned
+
+The attempts to prove the upper bound produced 118 Agda modules, with
+28,615 lines, of which 14,813 are nonblank lines of code and 6,399
+nonblank lines of prose, the rest being blank lines, comments and the
+delimiters of code blocks. The LLMs wrote the prose of their own
+accord, following the literate style of TypeTopology, without being
+asked to. Besides the proof, the modules hold the routes that were tried
+and abandoned, and a classical treatment over ordinals.
+
+The pruning started from the module [`Fundamental`][Fundamental], which
+proves the upper bound, and kept only the modules it imports, directly
+or indirectly. That left 34 modules, with 8,167 lines, of which 4,325
+are code, and discarded the other 84 outright.
+
+Within those 34 modules, the pruning then worked on definitions. A
+program read off, for each top-level definition, the definitions its
+code mentions, and removed every definition that the theorem doesn't
+reach in the resulting graph. The program reads names rather than types,
+so its verdict wasn't taken on trust: the development was type checked
+again after each round of removals, and the rounds were repeated until
+nothing more went. Then each surviving definition was deleted in turn
+and kept only if the development then failed to type check. This took
+335 type checks and found four more definitions to remove. Of the 554
+top-level definitions in the 34 modules, 333 are used by the proof and
+221 aren't. The result is minimal in the sense that no single definition
+can be removed, which doesn't exclude that several could be removed
+together.
+
+Next, the 205 imported names that were no longer used were removed,
+together with 41 whole import statements, again type checking after each
+step. One more module was then imported by nothing, and it was deleted
+together with the modules that the pruning had emptied. The 71
+paragraphs of prose that introduced emptied code blocks were cut, and
+the modules whose names no longer fitted their contents were renamed or
+merged. The remaining prose was then rewritten throughout. A second run
+of the one-at-a-time check, after these steps, was stopped after 100 of
+the 330 remaining definitions, having found nothing to remove. This
+leaves 24 modules, with 4,668 lines, of which 2,555 are code.
+
+Two things went wrong along the way, and both were caught. Removing
+imports once emptied the index, so that later type checks checked
+nothing and the one-at-a-time check deleted almost everything, and Agda
+once reused stale interface files instead of checking the edited
+sources. Both passes were run again with Agda made to check the edited
+sources each time, and the final development was checked from deleted
+interface files.
+
+The sharpness results were proved afterwards, in the modules
+[`Examples`][Examples] and [`Sharpness`][Sharpness]. Together with
+[`Main`][Main] and the index, they bring the development to the 28
+modules here, with 5,643 lines, of which 2,985 are code.
+
+| stage | modules | lines | lines of code | lines of prose |
+| --- | ---: | ---: | ---: | ---: |
+| everything the attempts produced | 118 | 28,615 | 14,813 | 6,399 |
+| the modules the proof of the upper bound imports | 34 | 8,167 | 4,325 | 1,394 |
+| those modules, pruned | 24 | 4,668 | 2,555 | 693 |
+| **this repository**: the pruned modules with the sharpness results | **28** | **5,643** | **2,985** | **955** |
 
 ## License
 
@@ -394,14 +426,14 @@ given.
 
 ```bibtex
 @misc{Escardo2026DialogueTreesHeight,
-  author       = {Escard{\'o}, Mart{\'\i}n},
+  author       = {H{\"o}tzel Escard{\'o}, Mart{\'\i}n},
   title        = {The dialogue trees of system {T} have height below
                   $\varepsilon_0$, and this bound is sharp},
   year         = {2026},
-  month        = oct,
-  howpublished = {\url{https://github.com/martinescardo/DialogueTreesHeight}},
-  note         = {An Agda formalization, with a paper, developed with
-                  LLMs},
+  month        = nov,
+  howpublished = {\url{https://martinescardo.github.io/DialogueTreesHeight/dialogue-tree-height.pdf}},
+  note         = {Agda formalization, and full information, available
+                  at \url{https://github.com/martinescardo/DialogueTreesHeight}},
 }
 ```
 
@@ -418,6 +450,6 @@ given.
 [Constructive]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.DialogueTrees.Constructive.html
 [Order]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.BrouwerOrdinals.Order.html
 [Multiplication]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.BrouwerOrdinals.Multiplication.html
-[Epsilon0]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/BrouwerOrdinals/Epsilon0.lagda
+[Epsilon0]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.BrouwerOrdinals.Epsilon0.html
 [workflow]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/.github/workflows/pages.yml
 [LICENSE]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/LICENSE
