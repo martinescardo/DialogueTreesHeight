@@ -207,18 +207,18 @@ reading their paper.
 ### The pointers
 
 Every numbered item carries a pointer in the LaTeX source to the Agda
-that proves it, set in blue when the switch `\agdarefstrue` is on, as
-it was during the verification. A pointer names a module and a definition in it, then
-further names of the same module, and a name must be defined in the
-module it's cited under rather than re-exported by it. A script
+that proves it, set in blue when the switch `\agdarefstrue` is on, as it
+was during the verification. A pointer names a module and a definition
+in it, then further names of the same module, and a name must be defined
+in the module it's cited under rather than re-exported by it. A script
 resolves every pointer against the sources and reports, for this paper,
-64 notes carrying 304 names, all resolving. Four numbered items carry
-no pointer, three remarks and a question, which make no formal claim,
-and Lemma 6.2 carries a note in place of a lemma, its two sides being
+64 notes carrying 304 names, all resolving. Four numbered items carry no
+pointer, three remarks and a question, which make no formal claim, and
+Lemma 6.2 carries a note in place of a lemma, its two sides being
 definitionally equal. The paper was written statement first, each Agda
 statement being read before the paper's was written, and the proofs
 describe the route the Agda takes. The companion module
-[`Article`](https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/Article.lagda)
+[`Article`](https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.Article.html)
 ties the two together the other way round, with an entry for every
 numbered item and every prose claim of the paper.
 
@@ -377,7 +377,7 @@ for, and none was made.
 ### Human verification
 
 The author used the Agda companion
-[`Article`](https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/Article.lagda)
+[`Article`](https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.Article.html)
 to manually check that the paper matches the formalization. The companion was
 written by an LLM to match the two, so this check and the LLM's are
 independent.
@@ -411,13 +411,13 @@ given.
 [dialogue-tree]: https://github.com/martinescardo/TypeTopology/blob/ee4e4c86da34ac609389285baa01e2eab6062b37/source/EffectfulForcing/MFPSAndVariations/MFPS-XXIX.lagda
 [agda-html]: https://github.com/martinescardo/TypeTopology/blob/43157f4b32b1fc272739596f2116878fbfca6760/admin-utilities/agda-html.py
 [DialogueTrees]: https://github.com/martinescardo/DialogueTreesHeight/tree/master/source/DialogueTreesHeight/DialogueTrees
-[Fundamental]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Fundamental.lagda
-[Examples]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Examples.lagda
-[Sharpness]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Sharpness.lagda
-[Main]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Main.lagda
-[Constructive]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/DialogueTrees/Constructive.lagda
-[Order]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/BrouwerOrdinals/Order.lagda
-[Multiplication]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/BrouwerOrdinals/Multiplication.lagda
+[Fundamental]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.DialogueTrees.Fundamental.html
+[Examples]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.DialogueTrees.Examples.html
+[Sharpness]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.DialogueTrees.Sharpness.html
+[Main]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.DialogueTrees.Main.html
+[Constructive]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.DialogueTrees.Constructive.html
+[Order]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.BrouwerOrdinals.Order.html
+[Multiplication]: https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.BrouwerOrdinals.Multiplication.html
 [Epsilon0]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/BrouwerOrdinals/Epsilon0.lagda
 [workflow]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/.github/workflows/pages.yml
 [LICENSE]: https://github.com/martinescardo/DialogueTreesHeight/blob/master/LICENSE
