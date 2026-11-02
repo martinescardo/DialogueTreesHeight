@@ -155,21 +155,25 @@
 % they are easy to tell apart from the mathematical text. They can be
 % turned off in one place by setting the switch to \agdarefsfalse, which
 % makes every \AgdaRefs print nothing while leaving its argument in the
-% source. They are on while the paper is being verified.
+% source. They were on while the paper was being verified, and are off
+% now that the companion module Article.lagda gives the reader the same
+% information in the paper's order.
 \definecolor{agdablue}{HTML}{5E8CB8}
 \newif\ifagdarefs
-\agdarefstrue
+\agdarefsfalse
 \newcommand{\AgdaRefs}[1]{\ifagdarefs{\footnotesize\color{agdablue}(#1)}\else\unskip\fi}
 
 % Claims made in running prose, outside any numbered environment, are
 % named with \claim{name} so that a companion file can point back at
 % them, and the names are written to \jobname.claims in the order they
-% occur. Every claim of this paper sits in a numbered environment with a
-% pointer of its own, so nothing uses this yet.
+% occur. The companion file Article.lagda has an entry for each. The
+% mark is followed by a break opportunity that a line may end at
+% without penalty, since the pointer that follows it is often long.
 \newwrite\claimfile
 \immediate\openout\claimfile=\jobname.claims
 \newcommand{\claim}[1]{%
-  \ifagdarefs{\footnotesize\color{agdablue}[#1]}\else\unskip\fi
+  \ifagdarefs{\footnotesize\color{agdablue}[#1]}\hfil\penalty0\hfilneg
+  \else\unskip\fi
   \immediate\write\claimfile{#1}}
 
 %   \Agda{Module.Path}{identifier-or-identifiers}
@@ -208,8 +212,6 @@
 \Crefname{theorem}{Theorem}{Theorems}
 \crefname{section}{Section}{Sections}
 \Crefname{section}{Section}{Sections}
-\crefname{appendix}{Appendix}{Appendices}
-\Crefname{appendix}{Appendix}{Appendices}
 \crefname{subsection}{Section}{Sections}
 \Crefname{subsection}{Section}{Sections}
 \sharedtheorem{proposition}{Proposition}{Propositions}
@@ -229,6 +231,9 @@
 % too long for one line at the top of a page.
 \title[Dialogue trees of system T]{The dialogue trees of system T have
   height below $\varepsilon_0$, and this bound is sharp}
+\author{Mart\'in H\"otzel Escard\'o}
+\address{School of Computer Science, University of Birmingham, UK}
+\email{m.escardo@cs.bham.ac.uk}
 \date{\today}
 
 \begin{document}
@@ -254,15 +259,6 @@
 \end{abstract}
 
 \maketitle
-
-\noindent
-This paper and its accompanying formalization were developed by LLM's
-under Mart\'in Escard\'o's direction. He has verified the correctness
-of the formulation of the main theorems in the Agda code and takes
-responsibility for this. However, he takes no responsibility for the
-correctness of this paper, but see the precautions taken
-in~\cref{sec:appendix}. This paper would greatly benefit from further
-human care.
 
 \section{Introduction}
 \label{sec:intro}
@@ -350,18 +346,61 @@ intended height.
 
 \subsection*{The formalization}
 
-Every result below carries a pointer, set in blue, to the Agda
-definition that proves it. The modules named live under the prefix
-\AgdaModule{DialogueTreesHeight}, which the pointers leave out,
-within the development accompanying this paper, available at
-\url{https://github.com/martinescardo/DialogueTreesHeight}, and the
-modules whose names begin with \AgdaModule{Ordinals} or \AgdaModule{EffectfulForcing} are those
-of the \texttt{TypeTopology} library. Everything is checked with the
-flags \texttt{--safe} and \texttt{--without-K}, with no postulates and
-no holes. The one assumption is function extensionality, which is a
-parameter of every module but the index and is used at the limit case
-of each arithmetic law proved by induction. The pointers can be suppressed by
-setting \texttt{\textbackslash agdarefsfalse} in the preamble.
+Every result below is proved in the Agda development accompanying this
+paper~\cite{Escardo2026Repository}. We also produced an Agda companion
+to this paper~\cite{Escardo2026Companion}, with an entry for every
+numbered item and for every claim the prose makes, in the paper's
+order and under its numbering, to make it easier to verify by hand
+that this paper matches the formalization. The modules whose names
+begin with \AgdaModule{Ordinals} or \AgdaModule{EffectfulForcing} are
+imported from \texttt{TypeTopology}~\cite{TypeTopology}, which
+supplies the Brouwer codes, the dialogue trees and the dialogue
+interpretation of system~T.
+
+The development is 28 modules under the prefix
+\AgdaModule{DialogueTreesHeight}, in two directories:
+\AgdaModule{BrouwerOrdinals}, 17 modules, holds the ordinal arithmetic
+and the graded maps and does not refer to system~T, and
+\AgdaModule{DialogueTrees}, 10 modules, holds the height, the
+majorants, the bound and the sharpness results, with the main theorems
+restated independently in the module \AgdaModule{Main}. Everything is
+checked with the flags \texttt{--safe} and \texttt{--without-K}, with
+no postulates and no holes. The only assumption is function
+extensionality, a parameter of every module but the index, used at the
+limit case of each arithmetic law proved by induction. The development
+is available at
+\url{https://github.com/martinescardo/DialogueTreesHeight}. The
+\LaTeX{} source of this paper also carries, after each statement, a
+pointer to the Agda that proves it, printed when the switch
+\texttt{\textbackslash agdarefstrue} is set in the preamble.
+
+\subsection*{AI use}
+
+The formalization was developed with the aid of LLMs, and this paper
+was then unformalized from it, again with their aid, each statement
+being written from the Agda statement that its pointer in the
+\LaTeX{} source names.
+
+The first suggestion given to the LLM was to apply Howard's assignment
+of ordinals to terms~\cite{Howard1970}, which did not work, for the
+reasons explained above. However, Howard's majorant method, in
+conjunction with the techniques of the MFPS paper~\cite{Escardo2013}
+and of the FSCD paper~\cite{EscardoPaivaRahliTosun2025} by Escard\'o,
+da Rocha Paiva, Rahli and Tosun, then gave rise to the results
+reported here, first in Agda. When we asked the LLM to prove that the
+bound is sharp, it failed after several hours. We then gave the hint
+to use the techniques of the \texttt{TypeTopology} module
+\AgdaModule{Ordinals.ChurchEncoding}~\cite{ChurchEncoding2011}, and
+this produced an Agda proof in a couple of minutes.
+
+The paper was verified against the formalization in several passes,
+and a copy with the pointers and every mention of the formalization
+removed was reviewed in four rounds by an LLM that had taken no part
+in the development. The account of these checks, and of how the
+formalization was pruned to what the proof uses, is in the README
+file~\cite{Escardo2026Repository} of the repository. The author used
+the Agda companion~\cite{Escardo2026Companion} to manually check that
+this paper matches the formalization.
 
 \section{Dialogue trees and their heights}
 \label{sec:dialogue}
@@ -426,6 +465,7 @@ $d$ computes,
 We write $\iterop$ for iteration on the natural numbers,
 $\iterop\,f\,x\,0 = x$ and
 $\iterop\,f\,x\,(n+1) = f\,(\iterop\,f\,x\,n)$.
+\claim{iteration}
 \AgdaRefs{\Agda{EffectfulForcing.MFPSAndVariations.Combinators}{iter}.}
 
 \begin{definition}[The dialogue interpretation]
@@ -468,6 +508,7 @@ argument,
 \[
   (\kext g\,d)\,s = \kext{(k \mapsto g\,k\,s)}\,d .
 \]
+\claim{kleisli-extension-at-higher-types}
 \AgdaRefs{\Agda{EffectfulForcing.MFPSAndVariations.MFPS-XXIX}{Kleisli-extension}.}
 
 The constant $\Iterc$ iterates a function rather than performing
@@ -496,6 +537,7 @@ an ordinal in the sense of the univalent library, and then the grafting
 and generic lemmas need excluded middle, because the successor map on
 ordinals is not monotone without it. Brouwer codes with their
 natural order avoid this.
+\claim{successor-not-monotone}
 \AgdaRefs{\Agda{Ordinals.AdditionProperties}{succ-not-necessarily-monotone}.}
 
 \begin{definition}[Brouwer codes and their order]
@@ -521,8 +563,8 @@ every upper bound of the family~$f$:
 \]
 We write $a < b$ for $\bS a \le b$.
 \AgdaRefs{\Agda{Ordinals.BrouwerCodes}{B};
-\Agda{BrouwerOrdinals.Order}{\_≤\_},
-\Agda{BrouwerOrdinals.Epsilon0}{\_<\_}.}
+\Agda{BrouwerOrdinals.Order}{\_≤\_}, \texttt{≤-Z}, \texttt{≤-S},
+\texttt{≤-ℓ}, \texttt{≤-L}; \Agda{BrouwerOrdinals.Epsilon0}{\_<\_}.}
 \end{definition}
 
 A limit is therefore the least upper bound of its family, and the
@@ -1226,6 +1268,7 @@ componentwise order on data of equal width, and we say that a datum is
 width~$k$ sits inside a datum $u$ of width~$n$, written $t \tsub u$,
 when $k \le n$ and each entry of~$t$ is below the entry of~$u$ of the
 same order.
+\claim{data-and-their-grading}
 \AgdaRefs{\Agda{BrouwerOrdinals.MoveTuple}{Tup}; \texttt{tsum},
 \texttt{\_⊑\_}, \texttt{All<}, \texttt{tsum-mono},
 \texttt{tsum-<-ε₀}; \Agda{BrouwerOrdinals.RectAlgebra}{\_⊴\_}.}
@@ -1249,6 +1292,7 @@ exponent~$s$. The combinator~$\Sc$ asks for
 more, since the datum of $f\,a\,(g\,a)$ carries an exponent that varies
 with~$a$, so we let the exponent be a map of the same kind one order
 up.
+\claim{scalar-maps}
 \AgdaRefs{\Agda{BrouwerOrdinals.Move}{Move}; \texttt{img},
 \texttt{orbit}, \texttt{move-orbit}, \texttt{padMove}.}
 
@@ -1451,6 +1495,7 @@ fit into a width one more than that of the input, and the entries
 above order~$p$ are read as constants only, which is what makes it
 fit into the width of the output. The reading is monotone:
 $d \tle d'$ implies $\rd d \tle \rd{d'}$.
+\claim{reading-a-tuple-as-a-map}
 \AgdaRefs{\Agda{BrouwerOrdinals.Rect}{WD}; \texttt{rdOf}, \texttt{pre},
 \texttt{rdOf-All<}, \texttt{rdOf-mono}.}
 
@@ -2311,7 +2356,9 @@ projection and the substitution. Two further facts are used below.
 The recursor is interpreted as a Kleisli extension
 (\cref{def:dialogue-interpretation}), so that
 $\dsem{\mathrm{fin}} = \kext{(k \mapsto
- \dsem{\mathrm{suc}}^{k}\,\dsem{\mathrm{zer}})}$. And the Kleisli
+ \dsem{\mathrm{suc}}^{k}\,\dsem{\mathrm{zer}})}$.
+\claim{fin-is-a-kleisli-extension}
+And the Kleisli
 extension at an arrow type acts under the argument, so that for
 $g : \N \to \dsem{\mathcal{O}\sigma}$ and values $z$, $s$, $l$,
 \[
@@ -2322,6 +2369,7 @@ and hence
   \dsem{\mathrm{lim}}\,(\kext g)\,z\,s\,l
     = l\,\big(\kext{(k \mapsto g\,k\,z\,s\,l)}\big) .
 \]
+\claim{kleisli-extension-under-arguments}
 
 \begin{definition}[The parametric relation]
 \label{def:rel}
@@ -2633,306 +2681,14 @@ $\height(\dtree(t)) < \tower n$ for a given term~$t$, for which the
 number $K(t)$ of~\cite{XiaoSun2026} is an upper bound.
 \end{question}
 
-\appendix
-% amsart keeps the section counter for appendices, so cleveref has to
-% be told that a section label after \appendix names an appendix.
-\crefalias{section}{appendix}
-\crefalias{subsection}{appendix}
-
-\section{The formalization}
-\label{sec:appendix}
-
-The formalization was developed first, by LLM's, and the paper was
-then unformalized from it, again by LLM's, each statement of the paper
-being written from the Agda statement it points at. We describe the
-files of the development, say where the main theorems are and what
-has to be read by hand, describe the pointers that tie the paper to
-the code, record how the paper was verified against it, and report the
-independent review of the paper alone and the changes it led to.
-
-\subsection{The files}
-\label{sec:files}
-
-The development is 28 Agda modules under the prefix
-\AgdaModule{DialogueTreesHeight}, some three thousand lines of code, in
-two directories, available at
-\url{https://github.com/martinescardo/DialogueTreesHeight}. Every
-module is checked with \texttt{--safe} and \texttt{--without-K}, with
-no postulates and no holes, and every module but the index, which only
-imports the others, takes function extensionality as a parameter named
-\texttt{fe}. The library
-it builds on is \texttt{TypeTopology}: the Brouwer codes come from
-\AgdaModule{Ordinals.BrouwerCodes}, and the dialogue trees, the
-combinatory system T and its dialogue interpretation from
-\AgdaModule{EffectfulForcing.MFPSAndVariations}.
-
-The directory \AgdaModule{BrouwerOrdinals}, 17 modules, holds the
-ordinal arithmetic and the graded maps, and knows nothing of system T
-or of dialogue trees. The modules \AgdaModule{Order},
-\AgdaModule{Multiplication}, \AgdaModule{Epsilon0} and
-\AgdaModule{MultClosure} are \cref{sec:codes}: the order, the
-arithmetic, the tower and the closure properties of~$\eps$. The other
-thirteen are \cref{sec:graded} together with the laws of absorption
-of~\cref{lem:absorb}: \AgdaModule{MoveTuple} for the data,
-\AgdaModule{Cascade} and \AgdaModule{CascadeLevel} for the cascades,
-\AgdaModule{Rect} for the graded maps and the reading of a tuple as
-one, \AgdaModule{RectAlgebra}, \AgdaModule{RectSum} and
-\AgdaModule{RectAdd} for the operations on graded maps and for
-projection, \AgdaModule{RectApply}, \AgdaModule{RectCurry} and
-\AgdaModule{RectOrbitAct} for application, abstraction and iteration
-in~\cref{lem:calculus}, and \AgdaModule{Move}, \AgdaModule{MultAffine}
-and \AgdaModule{Absorb} for the laws of absorption.
-
-The directory \AgdaModule{DialogueTrees}, 10 modules, is the rest
-of the paper. The module \AgdaModule{Constructive} defines the height,
-\cref{def:height}; \AgdaModule{Majorant} and \AgdaModule{MajorantAll}
-are \cref{sec:majorant}; \AgdaModule{Predicate}, \AgdaModule{SClause},
-\AgdaModule{IterClause} and \AgdaModule{Fundamental} are
-\cref{sec:bound}; \AgdaModule{Examples} and \AgdaModule{Sharpness} are
-\cref{sec:sharp}, \AgdaModule{Examples} also holding the
-irreflexivity of~\cref{lem:irrefl}; and \AgdaModule{Main} restates the main theorems.
-The module \AgdaModule{index} imports all of them in dependency order
-and ends with an outline of the proof and the references.
-
-\subsection{The main theorems}
-\label{sec:main-theorems}
-
-The results of the paper are the following four, in two modules of
-the directory \AgdaModule{DialogueTrees}, and all four are restated
-independently in its module \AgdaModule{Main}.
-\begin{center}
-\begin{tabular}{lll}
-  \Cref{thm:main}, upper bound &
-    \AgdaModule{Fundamental} & \texttt{dialogue-tree-height-<-ε₀} \\
-  \quad restated &
-    \AgdaModule{Main} & \texttt{restated} \\
-  \Cref{thm:lower}, lower bound &
-    \AgdaModule{Sharpness} & \texttt{tower-attained} \\
-  \quad restated &
-    \AgdaModule{Main} & \texttt{attained} \\
-  \Cref{cor:least}, cofinality &
-    \AgdaModule{Sharpness} & \texttt{heights-cofinal} \\
-  \quad restated &
-    \AgdaModule{Main} & \texttt{cofinal} \\
-  \Cref{cor:least}, least bound &
-    \AgdaModule{Sharpness} & \texttt{ε₀-least} \\
-  \quad restated &
-    \AgdaModule{Main} & \texttt{least}
-\end{tabular}
-\end{center}
-Agda checks that each is inhabited. What it does not check is that
-the statements mean what the paper says they mean, so these are what
-has to be read by hand: the four types above, the type
-\texttt{T ((ι ⇒ ι) ⇒ ι)} they quantify over, and the definitions they
-are built from, which are the order and the arithmetic of
-\cref{def:codes,def:arithmetic} in \AgdaModule{Order},
-\AgdaModule{Multiplication} and \AgdaModule{Epsilon0}, the height of
-\cref{def:height} in \AgdaModule{Constructive}, and
-\texttt{dialogue-tree} in \texttt{TypeTopology}. Together they come to
-some twenty lines. The module \AgdaModule{Main} guards the statements
-against drift. It restates the upper bound with $<$ unfolded and
-checks that the same proof term inhabits the restatement, checks that
-the order is not degenerate at the bottom and that the type quantified
-over is inhabited, and names the types of \texttt{dialogue-tree} and
-\texttt{height}. It does the same for the three sharpness results,
-with $<$ unfolded to a successor on the left and $\eps$ to the limit of
-the tower, and checks by \texttt{refl} that the tower is the sequence
-$\omega$, $\omega^{\omega}$, $\omega^{\omega^{\omega}}, \ldots$ and
-that $\eps$ is its limit.
-
-Two claims in the paper that something is false, in
-\cref{rem:last-grade} and in the proof of
-\cref{lem:dom-closure}(\labelcref{item:dom-add}), are motivation and
-are not formalized, nor is the remark of~\cref{sec:xiaosun} that the
-natural order is sound for the standard interpretation of the codes
-under excluded middle, and the account of the proof of Xiao and Sun in
-the same section comes from reading their paper.
-
-\subsection{The pointers}
-\label{sec:deformalizing}
-
-Every numbered item carries a pointer, set in blue, to the Agda that
-proves it. A pointer names a module and a definition in it, then
-further names of the same module, and a name must be defined in the
-module it is cited under rather than re-exported by it. A script
-resolves every pointer against the sources and reports, for this
-paper, 64 notes carrying 300 names, all resolving. Four numbered items
-carry no pointer, three remarks and a question, which make no formal
-claim, and \cref{lem:widths} carries a note in place of a lemma, its
-two sides being definitionally equal. The paper was written statement
-first, each Agda statement being read before the paper's was written,
-and the proofs describe the route the Agda takes.
-
-\subsection{The A/B/C verification}
-\label{sec:abc}
-
-The paper was then verified against the formalization in three
-passes, the independence of the first two being the point of the
-arrangement.
-
-\begin{enumerate}
-\item[A.]
-  Read the paper alone, with the formalization closed, as a reader
-  with no access to it: whether the mathematics is correct, whether
-  each statement is self-contained, whether each proof proves what
-  its statement says in steps that can be followed, and whether the
-  prose says what it means. The findings go to a numbered list.
-\item[B.]
-  Audit the same text against the formalization, without opening the
-  list from pass~A: each statement against the Agda it points at,
-  each proof against the route the Agda takes, and each pointer
-  against what exists and in which module.
-\item[C.]
-  Read the two lists together, merge the findings that coincide, drop
-  a finding of~A that B refutes, and rank what survives with the
-  errors first, the faithfulness gaps next and the language last.
-  Each finding is then settled before the next is raised.
-\end{enumerate}
-
-On the first run pass~A produced sixteen findings and pass~B eleven, one
-pair merged, and twenty-five survived into pass~C, of which five were
-errors. They are worth naming as a sample of what each pass catches.
-Pass~A found an operation used in the statement of a lemma and
-nowhere defined, a constant used in four places and nowhere defined,
-and a definition that reads as trivially the identity unless one is
-told why it is not. Pass~B found a proof attributing two of its cases
-to a lemma that neither case uses, a second proof describing a route
-the Agda does not take, and a theorem stated in a shape weaker than
-the one the pointer proves.
-
-The procedure was run more than once, and with more than one model,
-the later runs finding no error of mathematics and a small number of
-faithfulness gaps and points of language, most of them in text the
-first run had added. A limitation of every run should be recorded.
-The value of pass~A lies in the reader's ignorance of the
-formalization, and in each run the model carrying out that pass had
-the formalization at hand, so that it could read the paper as it was
-meant rather than as it stands. An independent pass~A is the single
-change that would most strengthen the procedure.
-
-The procedure was run once more after the four rounds
-of~\cref{sec:review}, on the revised paper. It found no error of
-mathematics and fourteen points: three of faithfulness, namely that the
-soundness of the natural order for the standard interpretation of the
-codes was asserted without saying that it is a classical remark and is
-not formalized, that the paper said the development records what fails
-without excluded middle when the classical modules had been discarded
-in the pruning, and that it said every module takes function
-extensionality as a parameter when the index does not; and eleven of
-precision and language, most of them in the text the revision had
-added. The same limitation applied, the model carrying out pass~A
-having had the formalization at hand.
-
-\subsection{The independent review}
-\label{sec:review}
-
-An independent pass~A was then carried out, on 28 October 2026. A copy
-of the paper was made with the pointers, the links, this appendix and
-every mention of the formalization removed, and it was given to an LLM
-that had taken no part in the development, with the request to referee
-it for mathematical correctness. The referee was asked not to consult
-the internet, and it confirmed that it did not, which has to be taken
-on trust. Its verdict was that the main claims were not established by
-the paper as written, and it recommended a major revision. It found no
-counterexample to the bound. It made three findings, and Mart\'in
-Escard\'o, reading the same copy, made a fourth.
-
-\begin{enumerate}
-\item The reading of a tuple as a graded map was misstated. The paper
-  took the cascade of output order~$j$ to be the whole suffix of the
-  tuple from~$j$, which is longer than a cascade reading the input
-  orders $j$ and above as soon as the output is wider than the input
-  by more than one. The formalization reads the entries of orders $j$
-  to~$p$ only, as~\cref{sec:rect} now says.
-\item The four parts of~\cref{lem:calculus} were stated without proof,
-  and the operations on graded maps that the clauses for~$\Sc$ and the
-  recursor use were called routine and not defined. The laws of
-  absorption of~\cref{lem:absorb}, the operations on cascades and on
-  graded maps, with~\cref{lem:cascade-ops,lem:rect-ops}, and the proof
-  of~\cref{lem:calculus} now supply them, and the proofs
-  of~\cref{lem:s-clause,lem:iter-clause} now name the data they build.
-\item The proof of~\cref{thm:lower} did not justify its limit step.
-  The limit of the algebra applies a function to the tree
-  $\beta\,\eta\,0$, and a function that ignores its argument makes no
-  query. The relation asks about the limit only at Kleisli extensions,
-  and the terms pass nothing else to a limit, but the paper said so in
-  a single clause and gave neither the encodings nor the relation.
-  Both are now written out, in~\cref{def:church,def:rel}, together
-  with the preservation lemma, \cref{lem:rel}.
-\item The generic oracle was defined only in passing, in the sentence
-  after the definition of dialogue trees. It now has a definition of
-  its own, \cref{def:kleisli-generic}, with the equations of the
-  Kleisli extension it is built from.
-\end{enumerate}
-
-None of the four concerns the formalization, which reads tuples as
-graded maps, proves the calculus, restricts the relation to Kleisli
-extensions and defines the generic oracle as the paper now does, and
-no Agda was changed. The first finding is a statement that does not
-match the definition its pointer names, which pass~B of the earlier
-runs had not caught. The second and third are proofs that the paper
-had left to its pointers, which a reader of the paper alone cannot
-follow.
-
-A second copy, made in the same way from the revised paper, was then
-given to the same referee, which again stated that it did not consult
-the internet. Its verdict was that the revision resolves the three
-findings of its first report, that it found no counterexample to the
-main claims, and that the sharpness argument had become substantially
-more convincing, and it recommended a minor revision for proof detail.
-It asked for two additions.
-
-\begin{enumerate}
-\item The elementary properties of the order and the laws of the
-  arithmetic of codes in~\cref{sec:codes}, on which the closure
-  of~$\eps$ rests, were stated without proof, and the proofs
-  of~\cref{lem:tower} and~\cref{prop:closure} were sketches. The
-  properties and the laws are now~\cref{lem:order,lem:add,lem:mult,lem:exp},
-  with their proofs, the absorption of sums and products by the tower
-  is~\cref{lem:tower-absorb}, and the proofs of~\cref{lem:tower}
-  and~\cref{prop:closure} now give every step.
-\item The proof of~\cref{prop:tree-of} excluded $\bS\,\eps \le \eps$
-  ``by induction on the code''. The general fact is
-  now~\cref{lem:irrefl}, with its proof.
-\end{enumerate}
-
-Again no Agda was changed. The second reading is less independent than
-the first, since the referee had its own first report in view, but it
-still had no access to the formalization.
-
-A third copy, made in the same way, was given to the same referee,
-which again stated that it did not consult the internet. It found no
-remaining objection to the correctness of the main theorems and
-recommended acceptance after minor clarifications, asking for three
-proof details, none of which it regarded as a gap.
-
-\begin{enumerate}
-\item The inequality $\num n \btimes \omega^{e} \le \omega^{\bS e}$ in
-  the proof of~\cref{lem:absorb} was proved ``by induction on~$e$''.
-  The three cases are now written out, the limit case included.
-\item The proof of~\cref{lem:dom-closure} called every part an
-  induction on the type, and did not write out the ground case of the
-  last part. The ground cases are now given, and the last part is
-  derived from $a \le d_0 < \eps$ by the successor rule.
-\item The induction in the proof of~\cref{prop:omega-attained} that the
-  generic oracle raises a finite lower bound by one did not show the
-  step at a query node. It is now an induction on the numeral, and the
-  step inverts a bound on a limit to a bound on one of its subtrees.
-\end{enumerate}
-
-No Agda was changed in this round either.
-
-A fourth copy, made in the same way, was given to the same referee,
-which again stated that it did not consult the internet. It confirmed
-that the three clarifications were present, rechecked how the bound on
-the iterates feeds the clause for the recursor and how the proof of the
-lower bound tests the limit of the algebra on Kleisli extensions, found
-no new gap, and recommended acceptance, with no remaining objection to
-the correctness of the paper. It added that its assessment is of the
-written proof, not a machine-checked verification. No change was asked
-for, and none was made.
-
 \begin{thebibliography}{9}
+
+\bibitem{ChurchEncoding2011}
+Mart\'in H\"otzel Escard\'o.
+\newblock Ordinals.ChurchEncoding: ordinals in G\"odel's system T and in
+  Martin-L\"of type theory, 2010, coded in Agda in 2011.
+\newblock Part of the TypeTopology repository~\cite{TypeTopology}.
+\newblock \url{https://github.com/martinescardo/TypeTopology/blob/master/source/Ordinals/ChurchEncoding.lagda}
 
 \bibitem{CoquandHancockSetzer1997}
 Thierry Coquand, Peter Hancock and Anton Setzer.
@@ -2947,6 +2703,20 @@ Mart\'in H\"otzel Escard\'o.
 \newblock {\em Electronic Notes in Theoretical Computer Science},
   298:119--141, 2013. MFPS XXIX.
 \newblock \url{https://doi.org/10.1016/j.entcs.2013.09.010}
+
+\bibitem{Escardo2026Companion}
+Mart\'in H\"otzel Escard\'o.
+\newblock DialogueTreesHeight.Article: an Agda companion to the paper
+  {\em The dialogue trees of system T have height below
+  $\varepsilon_0$, and this bound is sharp}, 2026.
+\newblock \url{https://github.com/martinescardo/DialogueTreesHeight/blob/master/source/DialogueTreesHeight/Article.lagda}
+
+\bibitem{Escardo2026Repository}
+Mart\'in H\"otzel Escard\'o.
+\newblock DialogueTreesHeight: an Agda formalization, with a paper,
+  that the dialogue trees of system T have height below
+  $\varepsilon_0$ and that this bound is sharp, 2026.
+\newblock \url{https://github.com/martinescardo/DialogueTreesHeight}
 
 \bibitem{EscardoPaivaRahliTosun2025}
 Mart\'in H\"otzel Escard\'o, Bruno da Rocha Paiva, Vincent Rahli and
@@ -2976,6 +2746,13 @@ William A. Howard.
 Wolfram Pohlers.
 \newblock {\em Proof Theory: The First Step into Impredicativity}.
 \newblock Universitext. Springer, 2009.
+
+\bibitem{TypeTopology}
+Mart\'in H\"otzel Escard\'o and others.
+\newblock TypeTopology: Agda development of univalent mathematics,
+  mainly type topology.
+\newblock Agda repository, continuously developed since 2011.
+\newblock \url{https://github.com/martinescardo/TypeTopology}
 
 \bibitem{XiaoSun2026}
 MingKun Xiao and YiXuan Sun.

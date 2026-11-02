@@ -42,6 +42,7 @@ import DialogueTreesHeight.DialogueTrees.Fundamental
 import DialogueTreesHeight.DialogueTrees.Examples
 import DialogueTreesHeight.DialogueTrees.Sharpness
 import DialogueTreesHeight.DialogueTrees.Main
+import DialogueTreesHeight.Article
 
 \end{code}
 
@@ -105,7 +106,10 @@ shows that, for each `n`, a term of System T attains the height `tower n`, so
 that the heights of the dialogue trees are cofinal in `ε₀` and the bound of the
 theorem is the least one. The module Main restates the theorem and these three
 results independently, with the abbreviations unfolded, and checks that the
-same proof terms inhabit the restatements.
+same proof terms inhabit the restatements. The module Article is the
+companion of the paper: it lists every numbered item of the paper, and every
+claim its prose makes, in the paper's order and under the paper's numbering,
+and gives for each the name in the development that proves it.
 
 References
 
