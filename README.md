@@ -139,12 +139,13 @@ didn't work, because the height of the dialogue tree of a term isn't a
 function of the values the term computes: a term whose output is small
 may ask the oracle a number of questions that no bound on its output
 predicts, so an assignment that bounds values doesn't by itself bound
-heights. However, Howard's majorant method, in conjunction with the
-techniques of the [MFPS 2013](https://doi.org/10.1016/j.entcs.2013.09.010)
-and [FSCD 2025](https://doi.org/10.4230/LIPIcs.FSCD.2025.19) papers,
-then gave rise to the results, first in Agda: a logical relation over
-the types of system T that bounds the height of the tree directly at
-the ground type, with a majorant hereditary in the type, so that the
+heights. A second prompt, to use Howard's majorant method in
+conjunction with the techniques of the
+[MFPS 2013](https://doi.org/10.1016/j.entcs.2013.09.010) and
+[FSCD 2025](https://doi.org/10.4230/LIPIcs.FSCD.2025.19) papers, then
+gave rise to the results, first in Agda: a logical relation over the
+types of system T that bounds the height of the tree directly at the
+ground type, with a majorant hereditary in the type, so that the
 recursor acquires a majorant at every type and not only at the ground
 type.
 
@@ -155,7 +156,7 @@ TypeTopology module
 which represents ordinals in system T, and this produced an Agda proof
 in a couple of minutes.
 
-The paper was then unformalized from the Agda, each statement being
+The paper was then unformalized from the Agda code, each statement being
 written from the Agda statement its pointer names, the formalization
 was pruned to what the proof uses, and the paper was verified against
 it, as the next two sections describe.
@@ -179,17 +180,17 @@ reading their paper.
 ### The pointers
 
 Every numbered item carries a pointer in the LaTeX source to the Agda
-that proves it, set in blue when the switch `\agdarefstrue` is on, as it
-was during the verification. A pointer names a module and a definition
-in it, then further names of the same module, and a name must be defined
-in the module it's cited under rather than re-exported by it. A script
-resolves every pointer against the sources and reports, for this paper,
-64 notes carrying 304 names, all resolving. Four numbered items carry no
-pointer, three remarks and a question, which make no formal claim, and
-Lemma 6.2 carries a note in place of a lemma, its two sides being
-definitionally equal. The paper was written statement first, each Agda
-statement being read before the paper's was written, and the proofs
-describe the route the Agda takes. The companion module
+code that proves it, set in blue when the switch `\agdarefstrue` is on,
+as it was during the verification. A pointer names a module and a
+definition in it, then further names of the same module, and a name must
+be defined in the module it's cited under rather than re-exported by it.
+A script resolves every pointer against the sources and reports, for
+this paper, 64 notes carrying 304 names, all resolving. Four numbered
+items carry no pointer, three remarks and a question, which make no
+formal claim, and Lemma 6.2 carries a note in place of a lemma, its two
+sides being definitionally equal. The paper was written statement first,
+each Agda statement being read before the paper's was written, and the
+proofs describe the route the Agda code takes. The companion module
 [`Article`](https://martinescardo.github.io/DialogueTreesHeight/DialogueTreesHeight.Article.html)
 ties the two together the other way round, with an entry for every
 numbered item and every prose claim of the paper.
@@ -205,8 +206,8 @@ the independence of the first two being the point of the arrangement.
   what its statement says in steps that can be followed, and whether
   the prose says what it means. The findings go to a numbered list.
 * **B.** Audit the same text against the formalization, without
-  opening the list from pass A: each statement against the Agda it
-  points at, each proof against the route the Agda takes, and each
+  opening the list from pass A: each statement against the Agda code it
+  points at, each proof against the route the Agda code takes, and each
   pointer against what exists and in which module.
 * **C.** Read the two lists together, merge the findings that coincide,
   drop a finding of A that B refutes, and rank what survives with the
@@ -220,7 +221,7 @@ Pass A found an operation used in the statement of a lemma and nowhere
 defined, a constant used in four places and nowhere defined, and a
 definition that reads as trivially the identity unless one is told why
 it isn't. Pass B found a proof attributing two of its cases to a lemma
-that neither case uses, a second proof describing a route the Agda
+that neither case uses, a second proof describing a route the Agda code
 doesn't take, and a theorem stated in a shape weaker than the one the
 pointer proves.
 
