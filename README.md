@@ -49,12 +49,63 @@ was then unformalized from it, again with their aid.
 ## Related work
 
 Xiao and Sun, [arXiv:2609.20369](https://arxiv.org/abs/2609.20369) (17
-September 2026), have proved the same upper bound, with a computable
-tower level for each term, over ordinals using classical logic. They
-claim an Agda formalization using TypeTopology, but it isn't linked in
-the paper and we haven't been able to find it. The proof we offer is
-constructive, measuring heights by Brouwer codes instead, and it
-settles the sharpness question that they leave open.
+September 2026), proved the upper bound first. They compute from each
+term a natural number `K(t)` with the height of its dialogue tree below
+the `K(t)`-th approximant of `ε₀`, so each term is bounded by a named
+level of the tower rather than by `ε₀` itself, which the proof here
+doesn't supply. Their argument runs through the syntax: a recursor is
+translated into a closed infinitary template, the redexes are removed
+by a sequence of passes indexed by type level, each preserving the
+dialogue denotation, and a rank is tracked across the passes. Their
+ordinals are the classical ones, and their formalization assumes
+excluded middle for the propositions of the second universe, together
+with univalence, propositional truncation and set replacement. They
+write that they don't claim the bound sharp, and they leave open
+whether the heights are cofinal in `ε₀`. They say that their proof is
+formalized in Agda using TypeTopology, but no repository is linked in
+the paper and we haven't been able to find it.
+
+The work here was produced independently. The formalization was
+completed on 26 October 2026, and we came across their preprint the
+next day, while looking up a reference for the paper. What this
+repository adds is twofold. The proof is constructive: the ordinals are
+Brouwer codes with their natural order, so the only assumption is
+function extensionality, and, classically, a bound in that order
+implies the classical one. And the heights are shown to be cofinal in
+`ε₀`, which answers the question they leave open and makes `ε₀` the
+least bound, so that no tower level bounds every term.
+
+The two proofs take different routes to the bound. Theirs is
+syntactic: the term is rewritten, with its recursors translated away
+and its redexes removed pass by pass, each step preserving the
+dialogue denotation, and the height is read off the result, which is
+what yields a tower level for each term. Ours is semantic, in the
+manner of Howard's hereditary assignment of ordinals to terms, which
+bounds the values a term computes and the length of its reductions,
+and whose shape of induction we follow for a different measure: a
+logical relation over the types of system T whose ground case bounds
+the height of a tree by a Brouwer code, and whose arrow case makes the
+bound hereditary, with a pointwise supremum and a pointwise
+translation at every type, so that the recursor acquires a majorant
+at every type and not only at the ground type. This reduces the
+theorem to ordinal arithmetic, that the majorant of a closed term of
+ground type is below `ε₀`. The majorant, a functional over codes
+built from addition and suprema, is bounded by a tuple of codes
+graded by the order of the type, a translation at order 0, an
+exponent at order 1, the exponent of that at order 2, and so on,
+under the one rule that an entry is raised only by entries of its own
+order or higher, which is the rule that iterating `x ↦ ω^x` breaks.
+The maps between such tuples form a calculus with application,
+abstraction, projection and iteration, and the two hard clauses of
+the induction, for the successor and for the recursor, are written in
+it. This route names no tower level for a given term, only `ε₀`. For
+the lower bound, which has no counterpart in their paper, Church
+encodings of the approximants of `ε₀` as terms of system T, after
+Coquand, Hancock and Setzer, are run against the oracle through an
+algebra that places one query above the tree built so far, and a
+parametricity argument shows that the resulting tree has the intended
+height. The discussion section of the paper compares the two proofs
+further.
 
 ## The structure of the repository
 
