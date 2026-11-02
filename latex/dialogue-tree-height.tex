@@ -2639,8 +2639,8 @@ than by hand.
 
 The bound of \cref{thm:main} is due to Xiao and
 Sun~\cite{XiaoSun2026}, and the proof given here is an alternative
-one. Their argument runs through the syntax. A recursor is translated
-into a closed infinitary template, the redexes are removed by a
+one, which takes a different route. Theirs is syntactic: a recursor is
+translated into a closed infinitary template, the redexes are removed by a
 sequence of passes indexed by ordinary type level, the translation and
 every pass preserve the dialogue denotation, and an auxiliary rank
 with an additive substitution bound is tracked across the passes. The
@@ -2651,7 +2651,11 @@ number~$K(t) \ge 2$ with
   \height(\dtree(t)) < \tower{K(t)} < \eps ,
 \]
 so each term is bounded by a named level of the tower rather than
-by~$\eps$. The proof here names no such level.
+by~$\eps$. The proof here names no such level. It is semantic, in the
+manner of Howard's hereditary assignment (\cref{sec:method}): a
+logical relation over the types bounds the height of the tree of each
+term through a majorant hereditary in the type, and the bound then
+comes from ordinal arithmetic rather than from a normal form.
 
 The two proofs differ in their ordinals. Theirs are the classical
 ones, and the ordinal part of their formalization assumes excluded

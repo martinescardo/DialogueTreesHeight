@@ -210,7 +210,10 @@ in a couple of minutes.
 The paper was then unformalized from the Agda code, each statement being
 written from the Agda statement its pointer names, the formalization
 was pruned to what the proof uses, and the paper was verified against
-it, as the next two sections describe.
+it, as the next two sections describe. The LLM estimates that the
+whole project took about 650 prompts, counting a first attempt in June
+and July 2026 that didn't find the proof, of which about 280 came after
+the proof was found, to write, check and present the paper.
 
 ## How the paper was verified
 
