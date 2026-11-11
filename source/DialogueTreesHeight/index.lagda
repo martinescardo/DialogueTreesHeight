@@ -119,8 +119,8 @@ within System T in [6]. The hereditary assignment of ordinals to terms, type
 by type, follows the method of Howard [2], and the bound `ε₀` is the ordinal
 of Gentzen's consistency proof of arithmetic [1], of which a modern account
 is [4]. The terms of the module Sharpness Church encode ordinals instead,
-after Coquand, Hancock and Setzer [3], through the module
-Ordinals.ChurchEncoding.
+after Coquand, Hancock and Setzer [3] and Hancock [8], through the
+module Ordinals.ChurchEncoding.
 
 The bound is due to Xiao and Sun [7], who compute from each term a level of
 the tower bounding the height of its tree, and this development is an
@@ -162,6 +162,11 @@ Sharpness settles, so that `ε₀` is the least bound.
 [7] M. Xiao and Y. Sun. An explicit ordinal bound for System T dialogue
     trees. Preprint, arXiv:2609.20369, 2026.
     https://arxiv.org/abs/2609.20369
+
+[8] P. Hancock. Church encodings of ordinals, and simulation of ordinal
+    functions. Talk at Russell'08: Proof Theory meets Type Theory,
+    Swansea, 15 March 2008.
+    https://web.archive.org/web/20220723181746/http://www.cs.swan.ac.uk/~csetzer/russell08/slides/hancock.pdf
 
 We now import the TypeTopology modules which are not used but are mentioned
 in the prose discussion.

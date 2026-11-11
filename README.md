@@ -101,7 +101,7 @@ the induction, for the successor and for the recursor, are written in
 it. This route names no tower level for a given term, only `ε₀`. For
 the lower bound, which has no counterpart in their paper, Church
 encodings of the approximants of `ε₀` as terms of system T, after
-Coquand, Hancock and Setzer, are run against the oracle through an
+Coquand, Hancock and Setzer and Hancock, are run against the oracle through an
 algebra that places one query above the tree built so far, and a
 parametricity argument shows that the resulting tree has the intended
 height. The discussion section of the paper compares the two proofs
