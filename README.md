@@ -1,6 +1,6 @@
 # The dialogue trees of system T have height below ε₀, and this bound is sharp
 
-27 October 2026 (last updated 2 November 2026)
+27 October 2026 (last updated 11 November 2026)
 
 The [dialogue interpretation](https://doi.org/10.1016/j.entcs.2013.09.010)
 (MFPS 2013) of Gödel's system T assigns to each closed term of type
